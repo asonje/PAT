@@ -1,0 +1,120 @@
+# Copyright (c) 2014, Intel Corporation
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of Intel Corporation nor the names of its contributors
+#       may be used to endorse or promote products derived from this software
+#       without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+#! /bin/bash
+
+ALL_NODES=$(awk '(/^ALL_NODES/){for (i=2; i<=NF; i++) print $i}' config)
+if [ -z "$ALL_NODES" ]; then
+	echo "*** Please Specify at least one worker node in the config file ***"
+	exit
+fi
+
+JOBID=$1
+MASTER_SCRIPT_DIR=$(awk '(/^MASTER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' config)
+MASTER_RESULTS_DIR=$(awk '(/^MASTER_RESULTS_DIR/){for (i=2; i<=NF; i++) print $i}' config)
+WORKER_SCRIPT_DIR=$(awk '(/^WORKER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' config)
+WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' config)
+
+CONF_DIRS=$(awk '(/^CONF_DIRS/){for (i=2; i<=NF; i++) print $i}' config)
+
+OUTDIR=$(pwd)/tmp
+rm -rf $OUTDIR
+mkdir $OUTDIR
+mkdir $OUTDIR/jobhistory
+if $GC ; then
+	mkdir $OUTDIR/gc_summary
+fi
+mkdir $OUTDIR/instruments
+mkdir $OUTDIR/conf
+cp $MASTER_SCRIPT_DIR/Instruments_for_Hadoop*.xlsm $OUTDIR/instruments
+
+function on_exit()
+{
+echo "Exiting Script ..." 
+$MASTER_SCRIPT_DIR/killjob
+killall -e killjvms
+rm -rf tmp  
+}
+
+getJobid(){
+if [ -z "$JOBID" ]; then
+	JOBID=$(date +%s)
+fi
+
+echo JOBID is $JOBID
+}
+
+#Gather the data
+#instruments
+
+get_instruments(){
+for i in $ALL_NODES
+do
+	mkdir $OUTDIR/instruments/$i
+	scp $i:$WORKER_TMP_DIR/* $OUTDIR/instruments/$i 1> /dev/null &
+done
+wait
+
+}
+
+#Gather conf files
+get_conf(){
+for i in $CONF_DIRS
+do
+	node=$(echo $i | cut -f1 -d:)
+	if [ $node == $i ]; then
+	scp -r $i $OUTDIR/conf 1> /dev/null &
+	else
+	if [ ! -d "$OUTDIR/conf/$node" ]; then
+		mkdir $OUTDIR/conf/$node
+	fi
+	scp -r $i $OUTDIR/conf/$node 1> /dev/null &
+	fi
+done
+wait
+}
+
+for i in $ALL_NODES
+do
+ssh $i "rm -rf $WORKER_TMP_DIR/*" > /dev/null
+done
+
+
+#Run Data Collection Scripts
+trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
+$MASTER_SCRIPT_DIR/runinstruments $OUTDIR/jobhistory
+
+
+getJobid
+get_instruments &
+get_conf &
+
+wait
+rm -rf $MASTER_RESULTS_DIR/$JOBID
+mv $OUTDIR $MASTER_RESULTS_DIR/$JOBID
+
+echo ****DONE!****
+echo output located at $MASTER_RESULTS_DIR/$JOBID
