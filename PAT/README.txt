@@ -8,6 +8,7 @@ WORKER_TMP_DIR
 MASTER_RESULTS_DIR
 
 Next, run the install.sh script to install. Be sure to run the install script on the master node. If you wish to collect data on the master node as well, include the hostname of the master node in the 'ALL_NODES' parameter in the config file.
+**Please Note that paswordless ssh is required for each 'node' listed in the 'ALL_NODES' parameter.**
 
 After installation go to the "MASTER_SCRIPT_DIR" location. You may make further edits to the "config" file and then run the "runall" script to run. Update the "CMD_PATH" variable in the config file.
 
