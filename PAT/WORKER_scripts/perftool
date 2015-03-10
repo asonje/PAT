@@ -25,8 +25,8 @@
 
 
 #! /bin/bash
-rm -rf tmp
-mkdir tmp
+rm -rf perf_tmp
+mkdir perf_tmp
 rm -rf $1/perfout
 
 function on_exit()
@@ -37,6 +37,6 @@ killall -SIGINT -e perf
 trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
 while(true)do
 
-perf record -a -F 1000 -o tmp/$(date +%s) sleep 5 2> /dev/null
+perf record -a -F 1000 -o perf_tmp/$(date +%s) sleep 5 2> /dev/null
 sleep 1
 done

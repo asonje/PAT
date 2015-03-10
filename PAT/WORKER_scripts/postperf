@@ -26,17 +26,17 @@
 
 #! /bin/bash
 
-if [ -d "./tmp" ]; then
-for i in $(ls -r tmp)
+if [ -d "./perf_tmp" ]; then
+for i in $(ls -r perf_tmp)
 do
-	rm -f ./tmp/$i
+	rm -f ./perf_tmp/$i
 	break
 done
-for i in $(ls tmp)
+for i in $(ls perf_tmp)
 do
-(perf report -i tmp/$i 2>/dev/null) 1>&1 | awk -v outfile=$i -v host=$(hostname) '(!/^#/ && !/^$/){if($1 >= 0.01)print host,outfile,$0 }' | sed -e 's/\s\+//7g' -e 's/%//g' >> $1/perfout
+(perf report -i perf_tmp/$i 2>/dev/null) 1>&1 | awk -v outfile=$i -v host=$(hostname) '(!/^#/ && !/^$/){if($1 >= 0.01)print host,outfile,$0 }' | sed -e 's/\s\+//7g' -e 's/%//g' >> $1/perfout
 
 done
-rm -rf tmp
+rm -rf perf_tmp
 rm -rf /tmp/perf-*.map
 fi

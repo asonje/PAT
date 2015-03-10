@@ -40,7 +40,7 @@ WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' confi
 
 CONF_DIRS=$(awk '(/^CONF_DIRS/){for (i=2; i<=NF; i++) print $i}' config)
 
-OUTDIR=$(pwd)/tmp
+OUTDIR=$(pwd)/mst_tmp
 rm -rf $OUTDIR
 mkdir $OUTDIR
 mkdir $OUTDIR/jobhistory
@@ -56,7 +56,7 @@ function on_exit()
 echo "Exiting Script ..." 
 $MASTER_SCRIPT_DIR/killjob
 killall -e killjvms
-rm -rf tmp  
+rm -rf mst_tmp  
 }
 
 getJobid(){
