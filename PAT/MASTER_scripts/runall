@@ -49,7 +49,7 @@ if $GC ; then
 fi
 mkdir $OUTDIR/instruments
 mkdir $OUTDIR/conf
-cp $MASTER_SCRIPT_DIR/Instruments_for_Hadoop*.xlsm $OUTDIR/instruments
+cp $MASTER_SCRIPT_DIR/result_template*.xlsm $OUTDIR/instruments
 
 function on_exit()
 {
