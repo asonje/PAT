@@ -35,6 +35,8 @@ MASTER_RESULTS_DIR=$(awk '(/^MASTER_RESULTS_DIR/){for (i=2; i<=NF; i++) print $i
 WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
 WORKER_SCRIPT_DIR=$(awk '(/^WORKER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
 
+source ./MASTER_scripts/common.sh
+
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on MASTER" $(hostname)
 
 mkdir -p $MASTER_SCRIPT_DIR
@@ -49,9 +51,9 @@ echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on WORKERS" \($ALL_NODES\)
 
 for i in $ALL_NODES
 do
-	ssh $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
-	scp -r WORKER_scripts/* $i:/$WORKER_SCRIPT_DIR 1> /dev/null
-	ssh $i "chmod +x $WORKER_SCRIPT_DIR/*"
+	ssh_w $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
+	scp_to_w $i "WORKER_scripts/*" /$WORKER_SCRIPT_DIR 1> /dev/null
+	ssh_w $i "chmod +x $WORKER_SCRIPT_DIR/*"
 done
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Finished Installing"

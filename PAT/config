@@ -24,10 +24,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#PLACE ALL CONFIGURATION PARAMETERS INTO THIS FILE
-#List all the servers/nodes you would like to install the tool
+# PLACE ALL CONFIGURATION PARAMETERS INTO THIS FILE
+#
+# List all the servers/nodes you would like to install the tool. These should
+# be accessible on SSH (on the provided ports) by logging as user root.
+# Node format: hostname|IP[:port]
 
-ALL_NODES: g3 g4 g5 g6 g7 g8 g9 g10
+ALL_NODES: g1:2000 g2 g3 g4 g5 g6
 
 #Folder where PAT scripts are stored
 WORKER_SCRIPT_DIR: /tmp/PAT
@@ -38,11 +41,11 @@ WORKER_TMP_DIR: /tmp/PAT_TMP
 MASTER_RESULTS_DIR: /tmp/PAT_RESULTS
 
 #REPLACE with the path to the script that launches the job
-CMD_PATH: /tmp/%insert your script.sh% 
+CMD_PATH: /tmp/_path_to_script.sh
 # Interval to collect metric from  the system under test in seconds, please note for a long running jobs try to keep this number 3-5 seconds to avoid data overload
 SAMPLE_RATE: 1
 
  
 #Mention the logfiles, Configuration files/folders to save in the form "$HOSTNAME:/path/to/folders This is an optional parameter
-#CONF_DIRS: g1:/%your folder%/%your file to be copied%/run
+#CONF_DIRS: g1:[port]/absolute_path_to_dir_or_file
 

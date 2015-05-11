@@ -32,6 +32,8 @@ if [ -z "$ALL_NODES" ]; then
 	exit
 fi
 
+source ./common.sh
+
 JOBID=$1
 MASTER_SCRIPT_DIR=$(awk '(/^MASTER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' config)
 MASTER_RESULTS_DIR=$(awk '(/^MASTER_RESULTS_DIR/){for (i=2; i<=NF; i++) print $i}' config)
@@ -71,10 +73,10 @@ echo JOBID is $JOBID
 #instruments
 
 get_instruments(){
-for i in $ALL_NODES
-do
-	mkdir $OUTDIR/instruments/$i
-	scp $i:$WORKER_TMP_DIR/* $OUTDIR/instruments/$i 1> /dev/null &
+for i in $ALL_NODES; do
+	node=$(echo $i | cut -f1 -d:)
+	mkdir $OUTDIR/instruments/$node
+	scp_from_w $i "$WORKER_TMP_DIR/*" $OUTDIR/instruments/$node 1> /dev/null &
 done
 wait
 
@@ -84,22 +86,22 @@ wait
 get_conf(){
 for i in $CONF_DIRS
 do
-	node=$(echo $i | cut -f1 -d:)
-	if [ $node == $i ]; then
-	scp -r $i $OUTDIR/conf 1> /dev/null &
+	node=${i%%/*} # remove path from the end of the CONF_DIR (format: hostname:[path])
+	path=/${i#*/} # remove everything before the first slash
+	host=$(echo $node | cut -d: -f1)
+	if [ $node == $host ]; then
+		# No remote path provided (missing ":"), local configuration dir ($node) to be copied
+		cp -a $node $OUTDIR/conf 1> /dev/null &
 	else
-	if [ ! -d "$OUTDIR/conf/$node" ]; then
-		mkdir $OUTDIR/conf/$node
-	fi
-	scp -r $i $OUTDIR/conf/$node 1> /dev/null &
+		if [ ! -d "$OUTDIR/conf/$node" ]; then mkdir $OUTDIR/conf/$node; fi
+		scp_from_w $node $path $OUTDIR/conf/$node 1> /dev/null &
 	fi
 done
 wait
 }
 
-for i in $ALL_NODES
-do
-ssh $i "rm -rf $WORKER_TMP_DIR/*" > /dev/null
+for i in $ALL_NODES; do
+	ssh_w $i "rm -rf $WORKER_TMP_DIR/*" > /dev/null
 done
 
 

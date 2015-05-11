@@ -1,4 +1,4 @@
-# Copyright (c) 2014, Intel Corporation
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,40 +24,32 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#!/bin/bash
-
-#Reading Hostnames
-ALL_NODES=$(awk '(/^ALL_NODES/){for (i=2; i<=NF; i++) print $i}' config)
-
-#Reading Directory Names
-WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' config)
-WORKER_SCRIPT_DIR=$(awk '(/^WORKER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' config)
-CMD_PATH=$(awk '(/^CMD_PATH/){for (i=2; i<=NF; i++) print $i}' config)
-SAMPLE_RATE=$(awk '(/^SAMPLE_RATE/){for (i=2; i<=NF; i++) print $i}' config)
-
-source ./common.sh
-
-function on_exit()
-{	
-	for i in $ALL_NODES
-	do
-		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./killinst f" &
-	done
+ssh_w() {
+	h=$(echo $1 | cut -d: -f1) # hostname
+	p=$(echo $1 | cut -d: -f2) # port
+	shift
+	if test -z $p; then p=22; fi
+	ssh -p $p root@$h "$@"
 }
 
-	for i in $ALL_NODES  
-	do
-		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./instruments $WORKER_TMP_DIR $SAMPLE_RATE < /dev/null > /dev/null 2>&1" &
-	done
+scp_to_w() {
+	# do not use as first parameter dir/*, use this between quotes
+	# i.e "dir/*" (prevents shell expansion)
+	h=$(echo $1 | cut -d: -f1) # hostname
+	p=$(echo $1 | cut -d: -f2) # port
+	shift
+	if test -z $p; then p=22; fi
+	scp -r -P $p $1 root@$h:$2
+}
+
+scp_from_w() {
+	# do not use as first parameter dir/*, use this between quotes
+	# i.e "dir/*" (prevents shell expansion)
+	h=$(echo $1 | cut -d: -f1) # hostname
+	p=$(echo $1 | cut -d: -f2) # port
+	shift
+	if test -z $p; then p=22; fi
+	scp -r -P $p root@$h:$1 $2
+}
 
 
-trap 'on_exit; exit 13' SIGKILL SIGQUIT SIGINT
-	$CMD_PATH 2>&1 | tee $1/stdout
-
-	for i in $ALL_NODES  
-	do
-		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./killinst $WORKER_TMP_DIR" &
-	done
-
-	
-wait
