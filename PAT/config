@@ -33,7 +33,10 @@
 
 ALL_NODES: g1:2000 g2 g3 g4 g5 g6
 
-#Folder where PAT scripts are stored
+# SSH Key for public-key authentication
+# SSH_KEY: /path/to/private_ssh_key
+
+# Folder where PAT scripts are stored
 WORKER_SCRIPT_DIR: /tmp/PAT
 MASTER_SCRIPT_DIR: /tmp/PAT
 

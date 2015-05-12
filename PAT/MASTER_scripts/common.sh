@@ -40,14 +40,20 @@ CONF_DIRS=$(awk '(/^CONF_DIRS/){for (i=2; i<=NF; i++) print $i}' config)
 # Read parameters
 CMD_PATH=$(awk '(/^CMD_PATH/){for (i=2; i<=NF; i++) print $i}' config)
 SAMPLE_RATE=$(awk '(/^SAMPLE_RATE/){for (i=2; i<=NF; i++) print $i}' config)
+SSH_KEY=$(awk '(/^SSH_KEY/){for (i=2; i<=NF; i++) print $i}' config)
 
+# build SSH/SCP parameter for passing the private key for auth
+_ssh_key=""
+if test ! -z $SSH_KEY; then
+	_ssh_key="-i $SSH_KEY"
+fi
 
 ssh_w() {
 	h=$(echo $1 | cut -d: -f1) # hostname
 	p=$(echo $1 | cut -d: -f2) # port
 	shift
 	if test -z $p; then p=22; fi
-	ssh -p $p root@$h "$@"
+	ssh $_ssh_key -p $p root@$h "$@"
 }
 
 scp_to_w() {
@@ -57,7 +63,7 @@ scp_to_w() {
 	p=$(echo $1 | cut -d: -f2) # port
 	shift
 	if test -z $p; then p=22; fi
-	scp -r -P $p $1 root@$h:$2
+	scp $_ssh_key -r -P $p $1 root@$h:$2
 }
 
 scp_from_w() {
@@ -67,7 +73,7 @@ scp_from_w() {
 	p=$(echo $1 | cut -d: -f2) # port
 	shift
 	if test -z $p; then p=22; fi
-	scp -r -P $p root@$h:$1 $2
+	scp $_ssh_key -r -P $p root@$h:$1 $2
 }
 
 
