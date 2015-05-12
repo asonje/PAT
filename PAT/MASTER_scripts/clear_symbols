@@ -26,18 +26,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-NODE_LIST=$(awk '(/ALL_NODES/){for (i=2; i<=NF; i++) print $i}' config)
-
-WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' config)
-
 source ./common.sh
 
 if [ ! -z "$WORKER_TMP_DIR" ]; then
 	echo "*** Clearing Tmp Directory ***"
-	for i in $NODE_LIST
+	for i in $ALL_NODES
 	do
 		ssh_w $i "rm -rf $WORKER_TMP_DIR/*"
 	done
 fi
-
 

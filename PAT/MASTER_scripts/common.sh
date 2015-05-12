@@ -24,6 +24,24 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
+# Read variables in the config file
+
+# Reading nodes
+ALL_NODES=$(awk '(/^ALL_NODES/){for (i=2; i<=NF; i++) print $i}' ./config)
+
+# Reading directory names
+WORKER_SCRIPT_DIR=$(awk '(/^WORKER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
+MASTER_SCRIPT_DIR=$(awk '(/^MASTER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
+
+WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
+MASTER_RESULTS_DIR=$(awk '(/^MASTER_RESULTS_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
+CONF_DIRS=$(awk '(/^CONF_DIRS/){for (i=2; i<=NF; i++) print $i}' config)
+
+# Read parameters
+CMD_PATH=$(awk '(/^CMD_PATH/){for (i=2; i<=NF; i++) print $i}' config)
+SAMPLE_RATE=$(awk '(/^SAMPLE_RATE/){for (i=2; i<=NF; i++) print $i}' config)
+
+
 ssh_w() {
 	h=$(echo $1 | cut -d: -f1) # hostname
 	p=$(echo $1 | cut -d: -f2) # port

@@ -26,15 +26,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#Reading Hostnames
-ALL_NODES=$(awk '(/^ALL_NODES/){for (i=2; i<=NF; i++) print $i}' ./config)
-
-#Reading Directory Names
-MASTER_SCRIPT_DIR=$(awk '(/^MASTER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-MASTER_RESULTS_DIR=$(awk '(/^MASTER_RESULTS_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-WORKER_SCRIPT_DIR=$(awk '(/^WORKER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-
 source ./MASTER_scripts/common.sh
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on MASTER" $(hostname)
