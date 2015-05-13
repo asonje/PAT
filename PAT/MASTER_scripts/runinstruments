@@ -32,7 +32,7 @@ function on_exit()
 {	
 	for i in $ALL_NODES
 	do
-		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./killinst f" &
+		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./killinst $WORKER_TMP_DIR f" &
 	done
 }
 

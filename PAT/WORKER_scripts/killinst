@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2014-2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,17 +26,16 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#! /bin/bash
 OUTDIR=$1
 
+# Stop all processes in the process group created by starting instruments
+PGID=$(cat $OUTDIR/pgid)
+rm $OUTDIR/pgid
+kill -15 -$PGID  # SIGTERM
 
-for i in jvms sar iostat vmstat perftool
-do
-	killall -SIGTERM -e $i 
-done
-
-if [ "$1" = "f" ]; then
-	rm -rf tmp;
+if [ ".$2" = ".f" ]; then
+	kill -9 -$PGID  # SIGKILL
+	rm -rf tmp
 	exit
 fi
 

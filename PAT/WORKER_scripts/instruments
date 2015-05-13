@@ -53,6 +53,12 @@ ver_ge() {
 
 rm -rf /$OUTDIR/cckstats
 
+# Use Process Group ID to identify all children of this process
+# Children are not executed in different process groups as this is a
+# non-interactive shell.
+PGID=$(ps -o pgid= $$)
+echo $PGID > $OUTDIR/pgid
+
 sar_ver=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print substr($0, RSTART, RLENGTH) }')
 
 sar_impl=1
