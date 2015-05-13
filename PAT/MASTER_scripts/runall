@@ -36,6 +36,7 @@ fi
 
 JOBID=$1
 
+echo "* Setting up results directory..."
 OUTDIR=$(pwd)/mst_tmp
 rm -rf $OUTDIR
 mkdir $OUTDIR
@@ -67,17 +68,20 @@ echo JOBID is $JOBID
 #instruments
 
 get_instruments(){
+echo "* Collecting results from each node..."
 for i in $ALL_NODES; do
 	node=$(echo $i | cut -f1 -d:)
 	mkdir $OUTDIR/instruments/$node
 	scp_from_w $i "$WORKER_TMP_DIR/*" $OUTDIR/instruments/$node 1> /dev/null &
 done
+echo "* Done collecting results from each node."
 wait
 
 }
 
 #Gather conf files
 get_conf(){
+echo "* Collecting configuration files..."
 for i in $CONF_DIRS
 do
 	node=${i%%/*} # remove path from the end of the CONF_DIR (format: hostname:[path])
@@ -91,18 +95,22 @@ do
 		scp_from_w $node $path $OUTDIR/conf/$node 1> /dev/null &
 	fi
 done
+echo "* Done collecting configuration files."
 wait
 }
 
+echo "* Cleaning up temporary results dir on all nodes."
 for i in $ALL_NODES; do
 	ssh_w $i "rm -rf $WORKER_TMP_DIR/*" > /dev/null
 done
 
 
 #Run Data Collection Scripts
+echo "* Starting data collection scripts..."
 trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
 $MASTER_SCRIPT_DIR/runinstruments $OUTDIR/jobhistory
 
+echo "* Done data collection."
 
 getJobid
 get_instruments &
