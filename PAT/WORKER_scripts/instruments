@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2014-2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,8 +25,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-#! /bin/bash
 OUTDIR=$1
 if [ "$#" == 1 ]; then
 	arg=1
@@ -33,15 +33,51 @@ else
 	arg=$@
 fi
 
+# Function for comparing version numbers
+# Returns true for v1 >= v2
+# Test:
+#   ver_ge 10.0.3 10.0.3 && echo yes1   # must print
+#   ver_ge 11.3.4 10.0.3 && echo yes2   # must print
+#   ver_ge 10.0.1 10.0.3 && echo yes3   # must not print
+ver_ge() {
+	v1=$1
+	v2=$2
+	# using "sort -V" for sorting versions
+	largest=$(echo -en "$1\n$2" | sort -V | tail -n1)
+	if test $v1 == $largest; then
+		return 0; # true
+	else
+		return 1; # false
+	fi
+}
+
 rm -rf /$OUTDIR/cckstats
 
-/usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+sar_ver=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print substr($0, RSTART, RLENGTH) }')
+
+sar_impl=1
+ver_ge $sar_ver 10.0.3 && sar_impl=2 # use 2nd implementation for sar version >= 10.0.3
+# for the future (change "11.0.1" below with the new tested version of sar)
+#ver_ge $sar_ver 11.0.1 && sar_impl=3
+
+
+case $sar_impl in
+	2)
+	/usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
+	/usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/ && !/Linux/){$1="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }; fflush()' > $OUTDIR/memstat &
+	/usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/ && !/Linux/){now=strftime("%s "); $1=""; if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}; fflush()' > $OUTDIR/netstat &
+	;;
+
+	*) # sar_impl == 1
+	/usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+	/usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/){if($0){$1="";$2="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }}}; fflush()' > $OUTDIR/memstat &
+	/usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/){if($0 &&!/Linux/){$1=""; $2=""; now=strftime("%s "); if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/netstat &
+	;;
+
+esac
+
 
 /usr/bin/iostat -x -k -d $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device:/){print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
-
-/usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/){if($0){$1="";$2="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }}}; fflush()' > $OUTDIR/memstat &
-
-/usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/){if($0 &&!/Linux/){$1=""; $2=""; now=strftime("%s "); if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/netstat &
 
 /usr/bin/vmstat -n $arg | awk -v host=$(hostname) '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/vmstat &
 
