@@ -70,9 +70,10 @@ echo JOBID is $JOBID
 get_instruments(){
 echo "* Collecting results from each node..."
 for i in $ALL_NODES; do
-	node=$(echo $i | cut -f1 -d:)
-	mkdir $OUTDIR/instruments/$node
-	scp_from_w $i "$WORKER_TMP_DIR/*" $OUTDIR/instruments/$node 1> /dev/null &
+	node=$(echo $i | awk '{ gsub(/:/,"-"); print }')
+	nodedir=$OUTDIR/instruments/$node
+	mkdir $nodedir
+	scp_from_w $i "$WORKER_TMP_DIR/*" $nodedir 1> /dev/null &
 done
 echo "* Done collecting results from each node."
 wait
