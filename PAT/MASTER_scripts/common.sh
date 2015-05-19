@@ -44,6 +44,8 @@ POST_EXEC_DELAY=$(awk '(/^POST_EXEC_DELAY/){for (i=2; i<=NF; i++) print $i}' con
 SAMPLE_RATE=$(awk '(/^SAMPLE_RATE/){for (i=2; i<=NF; i++) print $i}' config)
 SSH_KEY=$(awk '(/^SSH_KEY/){for (i=2; i<=NF; i++) print $i}' config)
 
+INSTRUMENTS=$(awk '(/^INSTRUMENTS/){for (i=2; i<=NF; i++) print $i}' config)
+
 # build SSH/SCP parameter for passing the private key for auth
 _ssh_key=""
 if test ! -z $SSH_KEY; then

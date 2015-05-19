@@ -54,6 +54,9 @@ CMD_PATH: /tmp/_path_to_script.sh
 # Interval to collect metric from  the system under test in seconds, please note for a long running jobs try to keep this number 3-5 seconds to avoid data overload
 SAMPLE_RATE: 1
 
+# List of instruments to be used in the analysis
+# Available instruments: cpustat memstat netstat iostat vmstat jvms perf
+INSTRUMENTS: cpustat memstat netstat iostat vmstat jvms perf
  
 #Mention the logfiles, Configuration files/folders to save in the form "$HOSTNAME:/path/to/folders This is an optional parameter
 #CONF_DIRS: g1:[port]/absolute_path_to_dir_or_file

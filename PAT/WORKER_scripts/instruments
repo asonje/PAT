@@ -51,6 +51,16 @@ ver_ge() {
 	fi
 }
 
+INSTRUMENTS=$(cat instrument_list)
+# Function for checking whether an instrument is enabled or not
+enabled_instrument() {
+	instrument=$1
+	for i in $INSTRUMENTS; do
+		if test $i == $instrument; then return 0; fi
+	done
+	return 1
+}
+
 rm -rf /$OUTDIR/cckstats
 
 # Use Process Group ID to identify all children of this process
@@ -69,24 +79,24 @@ ver_ge $sar_ver 10.0.3 && sar_impl=2 # use 2nd implementation for sar version >=
 
 case $sar_impl in
 	2)
-	/usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
-	/usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/ && !/Linux/){$1="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }; fflush()' > $OUTDIR/memstat &
-	/usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/ && !/Linux/){now=strftime("%s "); $1=""; if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}; fflush()' > $OUTDIR/netstat &
+	enabled_instrument cpustat && /usr/bin/sar -u $arg | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
+	enabled_instrument memstat && /usr/bin/sar -rSB $arg | awk -v host=$(hostname) '(!/^$/ && !/Linux/){$1="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }; fflush()' > $OUTDIR/memstat &
+	enabled_instrument netstat && /usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/ && !/Linux/){now=strftime("%s "); $1=""; if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}; fflush()' > $OUTDIR/netstat &
 	;;
 
 	*) # sar_impl == 1
-	/usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
-	/usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/){if($0){$1="";$2="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }}}; fflush()' > $OUTDIR/memstat &
-	/usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/){if($0 &&!/Linux/){$1=""; $2=""; now=strftime("%s "); if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/netstat &
+	enabled_instrument cpustat && /usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+	enabled_instrument memstat && /usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/){if($0){$1="";$2="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }}}; fflush()' > $OUTDIR/memstat &
+	enabled_instrument netstat && /usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/){if($0 &&!/Linux/){$1=""; $2=""; now=strftime("%s "); if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/netstat &
 	;;
 
 esac
 
 
-/usr/bin/iostat -x -k -d $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device:/){print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
+enabled_instrument iostat && /usr/bin/iostat -x -k -d $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device:/){print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
 
-/usr/bin/vmstat -n $arg | awk -v host=$(hostname) '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/vmstat &
+enabled_instrument vmstat && /usr/bin/vmstat -n $arg | awk -v host=$(hostname) '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/vmstat &
 
-./jvms $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if($0 && !/Linux/) if (/MapCount/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/jvms &
+enabled_instrument jvms && ./jvms $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if($0 && !/Linux/) if (/MapCount/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/jvms &
 
-./perftool $OUTDIR &
+enabled_instrument perf && ./perftool $OUTDIR &

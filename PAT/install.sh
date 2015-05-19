@@ -40,12 +40,16 @@ chmod +x $MASTER_SCRIPT_DIR/*
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on WORKERS" \($ALL_NODES\)
 
+instrument_list=$(mktemp)
+echo $INSTRUMENTS > $instrument_list
 for i in $ALL_NODES
 do
 	ssh_w $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
 	scp_to_w $i "WORKER_scripts/*" /$WORKER_SCRIPT_DIR 1> /dev/null
+	scp_to_w $i $instrument_list /$WORKER_SCRIPT_DIR/instrument_list 1> /dev/null
 	ssh_w $i "chmod +x $WORKER_SCRIPT_DIR/*"
 done
+rm $instrument_list
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Finished Installing"
 echo PAT location $MASTER_SCRIPT_DIR
