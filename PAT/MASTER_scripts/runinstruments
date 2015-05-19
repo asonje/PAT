@@ -28,27 +28,33 @@
 
 source ./common.sh
 
-function on_exit()
-{	
+function on_exit() {
 	for i in $ALL_NODES
 	do
 		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./killinst $WORKER_TMP_DIR f" &
 	done
 }
 
+function start_instruments() {
 	for i in $ALL_NODES  
 	do
 		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./instruments $WORKER_TMP_DIR $SAMPLE_RATE < /dev/null > /dev/null 2>&1" &
 	done
+}
 
-
-trap 'on_exit; exit 13' SIGKILL SIGQUIT SIGINT
-	$CMD_PATH 2>&1 | tee $1/stdout
-
+function stop_instruments() {
 	for i in $ALL_NODES  
 	do
 		ssh_w $i "cd $WORKER_SCRIPT_DIR; ./killinst $WORKER_TMP_DIR" &
 	done
+}
 
-	
+start_instruments
+
+trap 'on_exit; exit 13' SIGKILL SIGQUIT SIGINT
+
+$CMD_PATH 2>&1 | tee $1/stdout
+
+stop_instruments
+
 wait
