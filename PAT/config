@@ -44,8 +44,13 @@ MASTER_SCRIPT_DIR: /tmp/PAT
 WORKER_TMP_DIR: /tmp/PAT_TMP
 MASTER_RESULTS_DIR: /tmp/PAT_RESULTS
 
-#REPLACE with the path to the script that launches the job
+# Replace with the path to the script that launches the job
 CMD_PATH: /tmp/_path_to_script.sh
+
+# Delays before and after running the job, while the system is monitored
+#PRE_EXEC_DELAY: 5
+#POST_EXEC_DELAY: 5
+
 # Interval to collect metric from  the system under test in seconds, please note for a long running jobs try to keep this number 3-5 seconds to avoid data overload
 SAMPLE_RATE: 1
 

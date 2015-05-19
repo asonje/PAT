@@ -53,7 +53,9 @@ start_instruments
 
 trap 'on_exit; exit 13' SIGKILL SIGQUIT SIGINT
 
+if test ! -z $PRE_EXEC_DELAY; then sleep $PRE_EXEC_DELAY; fi
 $CMD_PATH 2>&1 | tee $1/stdout
+if test ! -z $POST_EXEC_DELAY; then sleep $POST_EXEC_DELAY; fi
 
 stop_instruments
 

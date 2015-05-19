@@ -39,6 +39,8 @@ CONF_DIRS=$(awk '(/^CONF_DIRS/){for (i=2; i<=NF; i++) print $i}' config)
 
 # Read parameters
 CMD_PATH=$(awk '(/^CMD_PATH/){for (i=2; i<=NF; i++) print $i}' config)
+PRE_EXEC_DELAY=$(awk '(/^PRE_EXEC_DELAY/){for (i=2; i<=NF; i++) print $i}' config)
+POST_EXEC_DELAY=$(awk '(/^POST_EXEC_DELAY/){for (i=2; i<=NF; i++) print $i}' config)
 SAMPLE_RATE=$(awk '(/^SAMPLE_RATE/){for (i=2; i<=NF; i++) print $i}' config)
 SSH_KEY=$(awk '(/^SSH_KEY/){for (i=2; i<=NF; i++) print $i}' config)
 
