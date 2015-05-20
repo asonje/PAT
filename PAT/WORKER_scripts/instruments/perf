@@ -26,27 +26,19 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OUTDIR=$1
-if [ "$#" == 1 ]; then
-	INTERVAL=1
-else
-	shift
-	INTERVAL=$@
-fi
+SAMPLING_INTERVAL=$2
 
-INSTRUMENTS=$(cat instrument_list)
+rm -rf perf_tmp
+mkdir perf_tmp
+rm -rf $OUTDIR/perfout
 
-rm -rf /$OUTDIR/cckstats
+function on_exit() {
+	killall -SIGINT -e perf
+}
 
-# Use Process Group ID to identify all children of this process
-# Children are not executed in different process groups as this is a
-# non-interactive shell.
-PGID=$(ps -o pgid= $$)
-echo $PGID > $OUTDIR/pgid
+trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
 
-# exporting SAR_VER as this is checked by some of the instruments
-export SAR_VER=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print substr($0, RSTART, RLENGTH) }')
-
-for instrument in $INSTRUMENTS; do
-	i="./instruments/$instrument"
-	$i $OUTDIR $INTERVAL &
+while(true)do
+	perf record -a -F 1000 -o perf_tmp/$(date +%s) sleep 5 2> /dev/null
+	sleep 1
 done

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2014-2015, Intel Corporation
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -25,28 +25,21 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-OUTDIR=$1
-if [ "$#" == 1 ]; then
-	INTERVAL=1
-else
-	shift
-	INTERVAL=$@
-fi
+# Function for comparing version numbers
+# Returns true for v1 >= v2
+# Test:
+#   ver_ge 10.0.3 10.0.3 && echo yes1   # must print
+#   ver_ge 11.3.4 10.0.3 && echo yes2   # must print
+#   ver_ge 10.0.1 10.0.3 && echo yes3   # must not print
+ver_ge() {
+	v1=$1
+	v2=$2
+	# using "sort -V" for sorting versions
+	largest=$(echo -en "$1\n$2" | sort -V | tail -n1)
+	if test $v1 == $largest; then
+		return 0; # true
+	else
+		return 1; # false
+	fi
+}
 
-INSTRUMENTS=$(cat instrument_list)
-
-rm -rf /$OUTDIR/cckstats
-
-# Use Process Group ID to identify all children of this process
-# Children are not executed in different process groups as this is a
-# non-interactive shell.
-PGID=$(ps -o pgid= $$)
-echo $PGID > $OUTDIR/pgid
-
-# exporting SAR_VER as this is checked by some of the instruments
-export SAR_VER=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print substr($0, RSTART, RLENGTH) }')
-
-for instrument in $INSTRUMENTS; do
-	i="./instruments/$instrument"
-	$i $OUTDIR $INTERVAL &
-done

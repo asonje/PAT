@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2014-2015, Intel Corporation
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -26,27 +26,24 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 OUTDIR=$1
-if [ "$#" == 1 ]; then
-	INTERVAL=1
-else
-	shift
-	INTERVAL=$@
-fi
+SAMPLING_INTERVAL=$2
 
-INSTRUMENTS=$(cat instrument_list)
+source instruments/_common.sh
 
-rm -rf /$OUTDIR/cckstats
+# SAR_VER is exported in the environment
+sar_impl=1
+ver_ge $SAR_VER 10.0.3 && sar_impl=2 # use 2nd implementation for sar version >= 10.0.3
+# for the future (change "11.0.1" below with the new tested version of sar)
+#ver_ge $sar_ver 11.0.1 && sar_impl=3
 
-# Use Process Group ID to identify all children of this process
-# Children are not executed in different process groups as this is a
-# non-interactive shell.
-PGID=$(ps -o pgid= $$)
-echo $PGID > $OUTDIR/pgid
 
-# exporting SAR_VER as this is checked by some of the instruments
-export SAR_VER=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print substr($0, RSTART, RLENGTH) }')
+case $sar_impl in
+	2)
+	/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
+	;;
 
-for instrument in $INSTRUMENTS; do
-	i="./instruments/$instrument"
-	$i $OUTDIR $INTERVAL &
-done
+	*) # sar_impl == 1
+	/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+	;;
+
+esac
