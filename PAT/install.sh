@@ -47,7 +47,7 @@ do
 	ssh_w $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
 	scp_to_w $i "WORKER_scripts/*" /$WORKER_SCRIPT_DIR 1> /dev/null
 	scp_to_w $i $instrument_list /$WORKER_SCRIPT_DIR/instrument_list 1> /dev/null
-	ssh_w $i "chmod +x $WORKER_SCRIPT_DIR/*"
+	ssh_w $i "cd $WORKER_SCRIPT_DIR; find . | xargs chmod +x"
 done
 rm $instrument_list
 
