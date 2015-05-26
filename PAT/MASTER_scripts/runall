@@ -100,11 +100,9 @@ echo "* Done collecting configuration files."
 wait
 }
 
-echo "* Cleaning up temporary results dir on all nodes."
-for i in $ALL_NODES; do
-	ssh_w $i "rm -rf $WORKER_TMP_DIR/*" > /dev/null
-done
 
+# Cleaning up temporary results dir on all nodes.
+source $MASTER_SCRIPT_DIR/clean_workers
 
 #Run Data Collection Scripts
 echo "* Starting data collection scripts..."

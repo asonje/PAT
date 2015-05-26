@@ -25,11 +25,13 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-if [ ! -z "$WORKER_TMP_DIR" ]; then
-	echo "*** Clearing Tmp Directory ***"
-	for i in $ALL_NODES
-	do
-		ssh_w $i "rm -rf $WORKER_TMP_DIR/*"
-	done
+echo "* Cleaning up temporary results dir on all nodes."
+
+if test -z "$WORKER_TMP_DIR"; then
+	exit
 fi
+
+for i in $ALL_NODES; do
+	ssh_w $i "rm -rf $WORKER_TMP_DIR/*" > /dev/null
+done
 

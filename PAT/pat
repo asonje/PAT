@@ -44,7 +44,7 @@ usage(){
 	echo "	install - install the scripts on the workers"
 	echo "	run - run the entire measurement scenario"
 	echo "	run_instruments - start the instruments"
-	echo "	clear_symbols - clean the temporary files on the workers"
+	echo "	clean_workers - clean the temporary files on the workers"
 	echo "	kill_job - stop the measuremenets job"
 	exit 1
 }
@@ -92,7 +92,7 @@ esac
 source $PAT_DIR/MASTER_scripts/common.sh
 
 case $ACTION in
-	"clear_symbols") source $PAT_DIR/MASTER_scripts/clear_symbols ;;
+	"clean_workers") source $PAT_DIR/MASTER_scripts/clean_workers ;;
 	"run") source $PAT_DIR/MASTER_scripts/runall ;;
 	"run_instruments") source $PAT_DIR/MASTER_scripts/runinstruments ;;
 	"kill_job") source $PAT_DIR/MASTER_scripts/killjob ;;
