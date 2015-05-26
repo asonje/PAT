@@ -36,13 +36,11 @@ ALL_NODES: g1:2000 g2 g3 g4 g5 g6
 # SSH Key for public-key authentication
 # SSH_KEY: /path/to/private_ssh_key
 
-# Folder where PAT scripts are stored
+# Folder where PAT scripts are stored on the worker (absolute path)
 WORKER_SCRIPT_DIR: /tmp/PAT
-MASTER_SCRIPT_DIR: /tmp/PAT
 
-# Folder where PAT data will be stored
+# Folder where PAT data will be stored on the worker (absolute path)
 WORKER_TMP_DIR: /tmp/PAT_TMP
-MASTER_RESULTS_DIR: /tmp/PAT_RESULTS
 
 # Replace with the path to the script that launches the job
 CMD_PATH: /tmp/_path_to_script.sh

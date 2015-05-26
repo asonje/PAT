@@ -26,16 +26,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-source ./MASTER_scripts/common.sh
-
-echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on MASTER" $(hostname)
-
-mkdir -p $MASTER_SCRIPT_DIR
-mkdir -p $MASTER_RESULTS_DIR
-
-cp -r MASTER_scripts/* $MASTER_SCRIPT_DIR
-cp -r config $MASTER_SCRIPT_DIR
-
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on WORKERS" \($ALL_NODES\)
 
 instrument_list=$(mktemp)
@@ -43,12 +33,10 @@ echo $INSTRUMENTS > $instrument_list
 for i in $ALL_NODES
 do
 	ssh_w $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
-	scp_to_w $i "WORKER_scripts/*" /$WORKER_SCRIPT_DIR 1> /dev/null
+	scp_to_w $i "$PAT_DIR/WORKER_scripts/*" /$WORKER_SCRIPT_DIR 1> /dev/null
 	scp_to_w $i $instrument_list /$WORKER_SCRIPT_DIR/instrument_list 1> /dev/null
 	ssh_w $i "cd $WORKER_SCRIPT_DIR; find . | xargs chmod +x"
 done
 rm $instrument_list
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Finished Installing"
-echo PAT location $MASTER_SCRIPT_DIR
-echo cd to $MASTER_SCRIPT_DIR to get started!

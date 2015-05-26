@@ -25,16 +25,24 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-source ./common.sh
-
 if [ -z "$ALL_NODES" ]; then
 	echo "*** Please Specify at least one worker node in the config file ***"
 	exit
 fi
 
+shift # remove pat action parameter ("run")
+
 
 JOBID=$1
+
+# Function called before storing the measurement results
+function get_job_id(){
+	if test -z $JOBID; then
+		JOBID=$(date +%s)
+	fi
+	echo JOBID is $JOBID
+}
+
 
 echo "* Setting up results directory..."
 OUTDIR=$(pwd)/mst_tmp
@@ -51,17 +59,9 @@ cp $MASTER_SCRIPT_DIR/result_template*.xlsm $OUTDIR/instruments
 function on_exit()
 {
 echo "Exiting Script ..." 
-$MASTER_SCRIPT_DIR/killjob
+source $MASTER_SCRIPT_DIR/killjob
 killall -e killjvms
 rm -rf mst_tmp  
-}
-
-getJobid(){
-if [ -z "$JOBID" ]; then
-	JOBID=$(date +%s)
-fi
-
-echo JOBID is $JOBID
 }
 
 #Gather the data
@@ -109,11 +109,11 @@ done
 #Run Data Collection Scripts
 echo "* Starting data collection scripts..."
 trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
-$MASTER_SCRIPT_DIR/runinstruments $OUTDIR/jobhistory
+source $MASTER_SCRIPT_DIR/runinstruments
 
 echo "* Done data collection."
 
-getJobid
+get_job_id
 get_instruments &
 get_conf &
 
