@@ -107,7 +107,7 @@ source $MASTER_SCRIPT_DIR/clean_workers
 #Run Data Collection Scripts
 echo "* Starting data collection scripts..."
 trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
-source $MASTER_SCRIPT_DIR/runinstruments
+source $MASTER_SCRIPT_DIR/run_measurements
 
 echo "* Done data collection."
 
