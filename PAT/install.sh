@@ -35,8 +35,6 @@ mkdir -p $MASTER_RESULTS_DIR
 
 cp -r MASTER_scripts/* $MASTER_SCRIPT_DIR
 cp -r config $MASTER_SCRIPT_DIR
-chmod +x $MASTER_SCRIPT_DIR/*
-
 
 echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on WORKERS" \($ALL_NODES\)
 
