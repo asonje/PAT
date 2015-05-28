@@ -27,5 +27,14 @@
 
 OUTDIR=$1
 SAMPLING_INTERVAL=$2
+CMD=$3
 
-/usr/bin/iostat -x -k -d $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device:/){print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
+function run()
+{
+	/usr/bin/iostat -x -k -d $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device:/){print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
+}
+
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
+esac

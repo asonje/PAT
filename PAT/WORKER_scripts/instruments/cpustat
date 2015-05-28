@@ -27,23 +27,31 @@
 
 OUTDIR=$1
 SAMPLING_INTERVAL=$2
+CMD=$3
 
 source instruments/_common.sh
 
-# SAR_VER is exported in the environment
-sar_impl=1
-ver_ge $SAR_VER 10.0.3 && sar_impl=2 # use 2nd implementation for sar version >= 10.0.3
-# for the future (change "11.0.1" below with the new tested version of sar)
-#ver_ge $sar_ver 11.0.1 && sar_impl=3
+function run()
+{
+	# SAR_VER is exported in the environment
+	sar_impl=1
+	ver_ge $SAR_VER 10.0.3 && sar_impl=2 # use 2nd implementation for sar version >= 10.0.3
+	# for the future (change "11.0.1" below with the new tested version of sar)
+	#ver_ge $sar_ver 11.0.1 && sar_impl=3
 
 
-case $sar_impl in
-	2)
-	/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
-	;;
+	case $sar_impl in
+		2)
+		/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
+		;;
 
-	*) # sar_impl == 1
-	/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
-	;;
+		*) # sar_impl == 1
+		/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+		;;
+	esac
+}
 
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
 esac

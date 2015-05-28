@@ -27,18 +27,26 @@
 
 OUTDIR=$1
 SAMPLING_INTERVAL=$2
-
-rm -rf perf_tmp
-mkdir perf_tmp
-rm -rf $OUTDIR/perfout
+CMD=$3
 
 function on_exit() {
 	killall -SIGINT -e perf
 }
-
 trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
 
-while(true)do
-	perf record -a -F 1000 -o perf_tmp/$(date +%s) sleep 5 2> /dev/null
-	sleep 1
-done
+function run()
+{
+	rm -rf perf_tmp
+	mkdir perf_tmp
+	rm -rf $OUTDIR/perfout
+
+	while(true)do
+		perf record -a -F 1000 -o perf_tmp/$(date +%s) sleep 5 2> /dev/null
+		sleep 1
+	done
+}
+
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
+esac

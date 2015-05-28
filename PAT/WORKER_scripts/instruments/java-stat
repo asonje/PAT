@@ -27,27 +27,35 @@
 
 OUTDIR=$1
 SAMPLING_INTERVAL=$2
+CMD=$3
 
 COMMAND=java
 OUTPUT_FILE=$OUTDIR/$COMMAND-stat
 
-#
-# pidstat parameters & header/fields tested with sysstat version 10.0.3
-#
+function run()
+{
+	#
+	# pidstat parameters & header/fields tested with sysstat version 10.0.3
+	#
 
-# Used pidstat parameters
-# -r = page faults & memory utilization
-# -u = CPU utilization
-# -d = I/O statistics
-# -h = display everything on a single line
-# -p ALL = show everything including inactive tasks
-#          (otherwise it will not show if no activity is performed)
-# -C cmd = command to be monitored
+	# Used pidstat parameters
+	# -r = page faults & memory utilization
+	# -u = CPU utilization
+	# -d = I/O statistics
+	# -h = display everything on a single line
+	# -p ALL = show everything including inactive tasks
+	#          (otherwise it will not show if no activity is performed)
+	# -C cmd = command to be monitored
 
-# Header
-# Adjust pidstat header to include HostName and TimeStamp
-pidstat -rudh -p ALL -C init | awk -v host=$(hostname) '(/Time/){$1=$2=""; print "HostName","TimeStamp", $0}; fflush()' > $OUTPUT_FILE
+	# Header
+	# Adjust pidstat header to include HostName and TimeStamp
+	pidstat -rudh -p ALL -C init | awk -v host=$(hostname) '(/Time/){$1=$2=""; print "HostName","TimeStamp", $0}; fflush()' > $OUTPUT_FILE
 
-# Data
-pidstat -rudh -p ALL -C $COMMAND $SAMPLING_INTERVAL | awk -v cmd=$COMMAND -v host=$(hostname) '(!/^$/ && !/Time/ && !/CPU/){if ($NF == cmd){now=strftime("%s"); $1=""; print host, now, $0}; fflush()}' >> $OUTPUT_FILE &
+	# Data
+	pidstat -rudh -p ALL -C $COMMAND $SAMPLING_INTERVAL | awk -v cmd=$COMMAND -v host=$(hostname) '(!/^$/ && !/Time/ && !/CPU/){if ($NF == cmd){now=strftime("%s"); $1=""; print host, now, $0}; fflush()}' >> $OUTPUT_FILE &
+}
 
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
+esac

@@ -48,5 +48,5 @@ export SAR_VER=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print
 
 for instrument in $INSTRUMENTS; do
 	i="./instruments/$instrument"
-	$i $OUTDIR $INTERVAL &
+	$i $OUTDIR $INTERVAL run &
 done

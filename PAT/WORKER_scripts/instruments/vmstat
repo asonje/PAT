@@ -27,5 +27,14 @@
 
 OUTDIR=$1
 SAMPLING_INTERVAL=$2
+CMD=$3
 
-/usr/bin/vmstat -n $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/vmstat &
+function run()
+{
+	/usr/bin/vmstat -n $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/vmstat &
+}
+
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
+esac
