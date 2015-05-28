@@ -38,7 +38,7 @@ JOBID=$1
 # Function called before storing the measurement results
 function get_job_id(){
 	if test -z $JOBID; then
-		JOBID=$(date +%s)
+		JOBID=$(date +%Y-%m-%d-%H-%M-%S)
 	fi
 	echo JOBID is $JOBID
 }
