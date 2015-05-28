@@ -46,7 +46,21 @@ function run()
 	done
 }
 
+function post-process()
+{
+	if [ ! -d "./perf_tmp" ]; then return; fi
+	for i in $(ls -r perf_tmp); do
+		rm -f ./perf_tmp/$i # remove last perf output file
+		break
+	done
+	for i in $(ls perf_tmp); do
+		(perf report -i perf_tmp/$i 2>/dev/null) 1>&1 | awk -v outfile=$i -v host=$(hostname) '(!/^#/ && !/^$/){if($1 >= 0.01)print host,outfile,$0 }' | sed -e 's/\s\+//7g' -e 's/%//g' >> $OUTDIR/perfout
+	done
+	rm -rf perf_tmp
+	rm -rf /tmp/perf-*.map
+}
+
 case $CMD in
 	"run") run ;;
-	"post-process") ;;
+	"post-process") post-process ;;
 esac

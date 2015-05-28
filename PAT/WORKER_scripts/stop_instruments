@@ -25,8 +25,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 OUTDIR=$1
+INSTRUMENTS=$(cat instrument_list)
 
 # Stop all processes in the process group created by starting instruments
 PGID=$(cat $OUTDIR/pgid)
@@ -39,5 +39,8 @@ if [ ".$2" = ".f" ]; then
 	exit
 fi
 
-./postperf $OUTDIR
-
+for instrument in $INSTRUMENTS; do
+	i="./instruments/$instrument"
+	$i $OUTDIR -1 post-process &
+done
+wait
