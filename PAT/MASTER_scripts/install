@@ -26,17 +26,17 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on WORKERS" \($ALL_NODES\)
+echo "* Installing PAT on workers..."
 
 instrument_list=$(mktemp)
 echo $INSTRUMENTS > $instrument_list
 for i in $ALL_NODES
 do
-	ssh_w $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
+	echo "** Installing on $i"
+	ssh_w $i "rm -rf $WORKER_SCRIPT_DIR; mkdir -p $WORKER_SCRIPT_DIR; rm -rf $WORKER_TMP_DIR; mkdir -p $WORKER_TMP_DIR"
 	scp_to_w $i "$PAT_DIR/WORKER_scripts/*" /$WORKER_SCRIPT_DIR 1> /dev/null
 	scp_to_w $i $instrument_list /$WORKER_SCRIPT_DIR/instrument_list 1> /dev/null
-	ssh_w $i "cd $WORKER_SCRIPT_DIR; find . | xargs chmod +x"
 done
 rm $instrument_list
+echo "* Done installing PAT on workers."
 
-echo ">>>>>>>>>>>>>>>>>>>>>>>>> Finished Installing"
