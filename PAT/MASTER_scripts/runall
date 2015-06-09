@@ -119,7 +119,9 @@ get_instruments &
 get_conf &
 
 wait
-rm -rf $MASTER_RESULTS_DIR/$JOBID
+final_results_dir=$MASTER_RESULTS_DIR/$JOBID
+mkdir -p $final_results_dir
+rm -rf $final_results_dir
 mv $OUTDIR $MASTER_RESULTS_DIR/$JOBID
 
 echo ****DONE!****
