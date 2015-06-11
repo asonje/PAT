@@ -42,14 +42,22 @@ CMD_PATH=$(awk '(/^CMD_PATH/){for (i=2; i<=NF; i++) print $i}' config)
 PRE_EXEC_DELAY=$(awk '(/^PRE_EXEC_DELAY/){for (i=2; i<=NF; i++) print $i}' config)
 POST_EXEC_DELAY=$(awk '(/^POST_EXEC_DELAY/){for (i=2; i<=NF; i++) print $i}' config)
 SAMPLE_RATE=$(awk '(/^SAMPLE_RATE/){for (i=2; i<=NF; i++) print $i}' config)
-SSH_KEY=$(awk '(/^SSH_KEY/){for (i=2; i<=NF; i++) print $i}' config)
 
 INSTRUMENTS=$(awk '(/^INSTRUMENTS/){for (i=2; i<=NF; i++) print $i}' config)
 
+SSH_KEY=$(awk '(/^SSH_KEY/){for (i=2; i<=NF; i++) print $i}' config)
 # build SSH/SCP parameter for passing the private key for auth
 _ssh_key=""
 if test ! -z $SSH_KEY; then
 	_ssh_key="-i $SSH_KEY"
+fi
+
+FIX_WORKER_DATETIME=$(awk '(/^FIX_WORKER_DATETIME/){for (i=2; i<=NF; i++) print $i}' config)
+FIX_WORKER_DATETIME=${FIX_WORKER_DATETIME,,} ## convert to lowercase
+if test -z $FIX_WORKER_DATETIME; then
+	FIX_WORKER_DATETIME="no"
+elif test $FIX_WORKER_DATETIME != "yes"; then
+	FIX_WORKER_DATETIME="no"
 fi
 
 ssh_w() {

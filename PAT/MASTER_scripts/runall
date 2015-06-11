@@ -43,6 +43,8 @@ function get_job_id(){
 	echo JOBID is $JOBID
 }
 
+# Fix date & time on the workers
+source $MASTER_SCRIPT_DIR/fix_datetime
 
 # Installing instrument scripts on the workers
 source $MASTER_SCRIPT_DIR/install

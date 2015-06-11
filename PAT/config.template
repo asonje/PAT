@@ -52,6 +52,15 @@ CMD_PATH: /tmp/_path_to_script.sh
 # Interval to collect metric from  the system under test in seconds, please note for a long running jobs try to keep this number 3-5 seconds to avoid data overload
 SAMPLE_RATE: 1
 
+# Specify whether PAT should try to fix the date and time of the workers.
+# Valid options: yes, no (default)
+#
+# The date & time are taken from the MASTER and pushed to the WORKERS with an SSH command.
+# The delay between reading the time on the MASTER and setting it over SSH on the WORKERS
+# may vary depending on multiple factors, such as the load on the MASTER or on the WORKERS,
+# the network latency etc. For greater time accuracy, using NTP is recommended.
+#FIX_WORKER_DATETIME: yes
+
 # List of instruments to be used in the analysis
 # Available instruments: cpustat memstat netstat iostat vmstat jvms perf
 INSTRUMENTS: cpustat memstat netstat iostat vmstat jvms perf
