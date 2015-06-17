@@ -40,7 +40,7 @@ function get_job_id(){
 	if test -z $JOBID; then
 		JOBID=$(date +%Y-%m-%d-%H-%M-%S)
 	fi
-	echo JOBID is $JOBID
+	echo "** JOBID is $JOBID"
 }
 
 # Fix date & time on the workers
@@ -49,7 +49,7 @@ source $MASTER_SCRIPT_DIR/fix_datetime
 # Installing instrument scripts on the workers
 source $MASTER_SCRIPT_DIR/install
 
-echo "* Setting up results directory..."
+echo "* Setting up temporary results directory..."
 OUTDIR=$(pwd)/mst_tmp
 rm -rf $OUTDIR
 mkdir $OUTDIR
@@ -73,21 +73,20 @@ rm -rf mst_tmp
 #instruments
 
 get_instruments(){
-echo "* Collecting results from each node..."
+echo "** Collecting results from each node..."
 for i in $ALL_NODES; do
 	node=$(echo $i | awk '{ gsub(/:/,"-"); print }')
 	nodedir=$OUTDIR/instruments/$node
 	mkdir $nodedir
 	scp_from_w $i "$WORKER_TMP_DIR/*" $nodedir 1> /dev/null &
 done
-echo "* Done collecting results from each node."
+echo "** Done collecting results from each node."
 wait
-
 }
 
 #Gather conf files
 get_conf(){
-echo "* Collecting configuration files..."
+echo "** Collecting configuration files..."
 for i in $CONF_DIRS
 do
 	node=${i%%/*} # remove path from the end of the CONF_DIR (format: hostname:[path])
@@ -101,7 +100,7 @@ do
 		scp_from_w $node $path $OUTDIR/conf/$node 1> /dev/null &
 	fi
 done
-echo "* Done collecting configuration files."
+echo "** Done collecting configuration files."
 wait
 }
 
@@ -110,21 +109,22 @@ wait
 source $MASTER_SCRIPT_DIR/clean_workers
 
 #Run Data Collection Scripts
-echo "* Starting data collection scripts..."
+echo "* Starting instrumentation scripts..."
 trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
 source $MASTER_SCRIPT_DIR/run_measurements
+echo "* Done instrumenting workload."
 
-echo "* Done data collection."
-
+echo "* Starting data collection from the workers..."
 get_job_id
 get_instruments &
 get_conf &
-
 wait
-final_results_dir=$MASTER_RESULTS_DIR/$JOBID
-mkdir -p $final_results_dir
-rm -rf $final_results_dir
-mv $OUTDIR $MASTER_RESULTS_DIR/$JOBID
+echo "* Done data collection."
 
-echo ****DONE!****
-echo output located at $MASTER_RESULTS_DIR/$JOBID
+echo "* Creating results directory..."
+final_results_dir=$MASTER_RESULTS_DIR/$JOBID
+mkdir -p $final_results_dir # creating full path to the results directory
+rm -rf $final_results_dir # removing contents of the results directory
+mv $OUTDIR $final_results_dir
+echo '**** DONE ****'
+echo "Collected data located at $final_results_dir"

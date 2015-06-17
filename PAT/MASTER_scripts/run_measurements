@@ -55,6 +55,7 @@ trap 'on_exit; exit 13' SIGKILL SIGQUIT SIGINT
 
 if test ! -z $PRE_EXEC_DELAY; then sleep $PRE_EXEC_DELAY; fi
 # $OUTDIR is loaded in the environment
+echo "* Starting workload..."
 $CMD_PATH 2>&1 | tee $OUTDIR/jobhistory/stdout
 if test ! -z $POST_EXEC_DELAY; then sleep $POST_EXEC_DELAY; fi
 
