@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,36 +26,20 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-#!/bin/bash
-
-#Reading Hostnames
-ALL_NODES=$(awk '(/^ALL_NODES/){for (i=2; i<=NF; i++) print $i}' ./config)
-
-#Reading Directory Names
-MASTER_SCRIPT_DIR=$(awk '(/^MASTER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-MASTER_RESULTS_DIR=$(awk '(/^MASTER_RESULTS_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-WORKER_TMP_DIR=$(awk '(/^WORKER_TMP_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-WORKER_SCRIPT_DIR=$(awk '(/^WORKER_SCRIPT_DIR/){for (i=2; i<=NF; i++) print $i}' ./config)
-
-echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on MASTER" $(hostname)
-
-mkdir -p $MASTER_SCRIPT_DIR
-mkdir -p $MASTER_RESULTS_DIR
-
-cp -r MASTER_scripts/* $MASTER_SCRIPT_DIR
-cp -r config $MASTER_SCRIPT_DIR
-chmod +x $MASTER_SCRIPT_DIR/*
-
-
-echo ">>>>>>>>>>>>>>>>>>>>>>>>> Installing PAT on WORKERS" \($ALL_NODES\)
-
-for i in $ALL_NODES
-do
-	ssh $i "mkdir -p $WORKER_SCRIPT_DIR; mkdir $WORKER_TMP_DIR"
-	scp -r WORKER_scripts/* $i:/$WORKER_SCRIPT_DIR 1> /dev/null
-	ssh $i "chmod +x $WORKER_SCRIPT_DIR/*"
+# Stopping any instruments that might be still running on the workers
+echo "* Stopping any instruments that might be still running on the workers..."
+for i in $ALL_NODES; do
+	ssh_w $i "PGID=\$(cat $WORKER_TMP_DIR/pgid); kill -9 -\$PGID; rm -rf $WORKER_TMP_DIR/pgid" &> /dev/null &
 done
+wait
 
-echo ">>>>>>>>>>>>>>>>>>>>>>>>> Finished Installing"
-echo PAT location $MASTER_SCRIPT_DIR
-echo cd to $MASTER_SCRIPT_DIR to get started!
+echo "* Removing PAT from the workers..."
+for i in $ALL_NODES; do
+	ssh_w $i "rm -rf $WORKER_SCRIPT_DIR" > /dev/null &
+done
+wait
+
+# Cleaning up temporary results dir on all nodes
+source $MASTER_SCRIPT_DIR/clean_workers
+
+echo "* Done cleanup."

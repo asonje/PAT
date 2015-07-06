@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,26 +25,17 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+internal_fix_datetime() {
+	echo "* Fixing date & time on all workers..."
+	current_time=$(date +%s)
+	for i in $ALL_NODES; do
+		# setting time in parallel on all workers
+		ssh_w $i "date +%s -s @$current_time" &> /dev/null &
+	done
+	wait # waiting for the ssh commands to finish setting up the time
+	echo "* Done fixing time on workers."
+}
 
-#PLACE ALL CONFIGURATION PARAMETERS INTO THIS FILE
-#List all the servers/nodes you would like to install the tool
-
-ALL_NODES: g3 g4 g5 g6 g7 g8 g9 g10
-
-#Folder where PAT scripts are stored
-WORKER_SCRIPT_DIR: /tmp/PAT
-MASTER_SCRIPT_DIR: /tmp/PAT
-
-# Folder where PAT data will be stored
-WORKER_TMP_DIR: /tmp/PAT_TMP
-MASTER_RESULTS_DIR: /tmp/PAT_RESULTS
-
-#REPLACE with the path to the script that launches the job
-CMD_PATH: /tmp/%insert your script.sh% 
-# Interval to collect metric from  the system under test in seconds, please note for a long running jobs try to keep this number 3-5 seconds to avoid data overload
-SAMPLE_RATE: 1
-
- 
-#Mention the logfiles, Configuration files/folders to save in the form "$HOSTNAME:/path/to/folders This is an optional parameter
-#CONF_DIRS: g1:/%your folder%/%your file to be copied%/run
-
+if test $FIX_WORKER_DATETIME == "yes"; then
+	internal_fix_datetime
+fi

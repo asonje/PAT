@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,14 +25,33 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+OUTDIR=$1
+SAMPLING_INTERVAL=$2
+CMD=$3
 
-#! /bin/bash
+source instruments/_common.sh
 
-period=$1
+function run()
+{
+	# SAR_VER is exported in the environment
+	sar_impl=1
+	ver_ge $SAR_VER 10.0.3 && sar_impl=2 # use 2nd implementation for sar version >= 10.0.3
+	# for the future (change "11.0.1" below with the new tested version of sar)
+	#ver_ge $sar_ver 11.0.1 && sar_impl=3
 
-echo MapCount ReduceCount
-while :
-do
-echo $[$(ps aux | grep -v '/bin/bash' | grep _m_ | wc -l) - 1] $[$(ps aux | grep -v '/bin/bash' | grep _r_ | wc -l) - 1]
-sleep $period
-done
+
+	case $sar_impl in
+		2)
+		/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
+		;;
+
+		*) # sar_impl == 1
+		/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+		;;
+	esac
+}
+
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
+esac

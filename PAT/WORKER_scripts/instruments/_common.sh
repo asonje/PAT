@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,17 +25,21 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-#! /bin/bash
-
-if [ -x !$(which hadoop) ] ; then
-	echo 'hadoop' executable not on path
-	exit
-fi
-jobid=$(hadoop job -list | awk 'END{print $1}')
-if [ "$jobid" == "JobId" ]; then
-echo No Running Job
-else
-hadoop job -kill $jobid
-fi
+# Function for comparing version numbers
+# Returns true for v1 >= v2
+# Test:
+#   ver_ge 10.0.3 10.0.3 && echo yes1   # must print
+#   ver_ge 11.3.4 10.0.3 && echo yes2   # must print
+#   ver_ge 10.0.1 10.0.3 && echo yes3   # must not print
+ver_ge() {
+	v1=$1
+	v2=$2
+	# using "sort -V" for sorting versions
+	largest=$(echo -en "$1\n$2" | sort -V | tail -n1)
+	if test $v1 == $largest; then
+		return 0; # true
+	else
+		return 1; # false
+	fi
+}
 

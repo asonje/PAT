@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,17 +25,23 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+OUTDIR=$1
+SAMPLING_INTERVAL=$2
+CMD=$3
 
-#! /bin/bash
+function run()
+{
+	(
+	echo MapCount ReduceCount
+	while :
+	do
+		echo $[$(ps aux | grep -v '/bin/bash' | grep _m_ | wc -l) - 1] $[$(ps aux | grep -v '/bin/bash' | grep _r_ | wc -l) - 1]
+		sleep $SAMPLING_INTERVAL
+	done
+	) | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if($0 && !/Linux/) if (/MapCount/){print "HostName","TimeStamp",$0} else {print host,now $0}}; fflush()' > $OUTDIR/jvms &
+}
 
-if [ -x !$(which hadoop) ] ; then
-	echo 'hadoop' executable not on path
-	exit
-fi
-jobid=$(hadoop job -list | awk 'END{print $1}')
-if [ "$jobid" == "JobId" ]; then
-echo No Running Job
-else
-hadoop job -kill $jobid
-fi
-
+case $CMD in
+	"run") run ;;
+	"post-process") ;;
+esac

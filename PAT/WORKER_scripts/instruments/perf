@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2014-2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,20 +25,42 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+OUTDIR=$1
+SAMPLING_INTERVAL=$2
+CMD=$3
 
-#! /bin/bash
+function on_exit() {
+	killall -SIGINT -e perf
+}
+trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
 
-if [ -d "./perf_tmp" ]; then
-for i in $(ls -r perf_tmp)
-do
-	rm -f ./perf_tmp/$i
-	break
-done
-for i in $(ls perf_tmp)
-do
-(perf report -i perf_tmp/$i 2>/dev/null) 1>&1 | awk -v outfile=$i -v host=$(hostname) '(!/^#/ && !/^$/){if($1 >= 0.01)print host,outfile,$0 }' | sed -e 's/\s\+//7g' -e 's/%//g' >> $1/perfout
+function run()
+{
+	rm -rf perf_tmp
+	mkdir perf_tmp
+	rm -rf $OUTDIR/perfout
 
-done
-rm -rf perf_tmp
-rm -rf /tmp/perf-*.map
-fi
+	while(true)do
+		perf record -a -F 1000 -o perf_tmp/$(date +%s) sleep 5 2> /dev/null
+		sleep 1
+	done
+}
+
+function post-process()
+{
+	if [ ! -d "./perf_tmp" ]; then return; fi
+	for i in $(ls -r perf_tmp); do
+		rm -f ./perf_tmp/$i # remove last perf output file
+		break
+	done
+	for i in $(ls perf_tmp); do
+		(perf report -i perf_tmp/$i 2>/dev/null) 1>&1 | awk -v outfile=$i -v host=$(hostname) '(!/^#/ && !/^$/){if($1 >= 0.01)print host,outfile,$0 }' | sed -e 's/\s\+//7g' -e 's/%//g' >> $OUTDIR/perfout
+	done
+	rm -rf perf_tmp
+	rm -rf /tmp/perf-*.map
+}
+
+case $CMD in
+	"run") run ;;
+	"post-process") post-process ;;
+esac

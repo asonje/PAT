@@ -1,4 +1,6 @@
-# Copyright (c) 2014, Intel Corporation
+#!/bin/bash
+#
+# Copyright (c) 2014-2015, Intel Corporation
 # 
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -23,28 +25,28 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
-#! /bin/bash
 OUTDIR=$1
 if [ "$#" == 1 ]; then
-	arg=1
+	INTERVAL=1
 else
 	shift
-	arg=$@
+	INTERVAL=$@
 fi
+
+INSTRUMENTS=$(cat instrument_list)
 
 rm -rf /$OUTDIR/cckstats
 
-/usr/bin/sar -u $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+# Use Process Group ID to identify all children of this process
+# Children are not executed in different process groups as this is a
+# non-interactive shell.
+PGID=$(ps -o pgid= $$)
+echo $PGID > $OUTDIR/pgid
 
-/usr/bin/iostat -x -k -d $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device:/){print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
+# exporting SAR_VER as this is checked by some of the instruments
+export SAR_VER=$(sar -V | awk 'match($0, /[0-9]+\.([0-9]+\.)?([0-9]+)?/) { print substr($0, RSTART, RLENGTH) }')
 
-/usr/bin/sar -rSB $arg |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/){if($0){$1="";$2="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }}}; fflush()' > $OUTDIR/memstat &
-
-/usr/bin/sar -n DEV $arg | awk -v host=$(hostname) '(!/^$/){if($0 &&!/Linux/){$1=""; $2=""; now=strftime("%s "); if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/netstat &
-
-/usr/bin/vmstat -n $arg | awk -v host=$(hostname) '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/vmstat &
-
-./jvms $arg | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if($0 && !/Linux/) if (/MapCount/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()' > $OUTDIR/jvms &
-
-./perftool $OUTDIR &
+for instrument in $INSTRUMENTS; do
+	i="./instruments/$instrument"
+	$i $OUTDIR $INTERVAL run &
+done
