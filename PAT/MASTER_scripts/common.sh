@@ -62,7 +62,7 @@ fi
 
 ssh_w() {
 	h=$(echo $1 | cut -d: -f1) # hostname
-	p=$(echo $1 | cut -d: -f2) # port
+	p=$(echo $1 | cut -d: -f2 -s) # port
 	shift
 	if test -z $p; then p=22; fi
 	ssh $_ssh_key -p $p root@$h "$@"
@@ -72,7 +72,7 @@ scp_to_w() {
 	# do not use as first parameter dir/*, use this between quotes
 	# i.e "dir/*" (prevents shell expansion)
 	h=$(echo $1 | cut -d: -f1) # hostname
-	p=$(echo $1 | cut -d: -f2) # port
+	p=$(echo $1 | cut -d: -f2 -s) # port
 	shift
 	if test -z $p; then p=22; fi
 	scp $_ssh_key -p -r -P $p $1 root@$h:$2
@@ -82,7 +82,7 @@ scp_from_w() {
 	# do not use as first parameter dir/*, use this between quotes
 	# i.e "dir/*" (prevents shell expansion)
 	h=$(echo $1 | cut -d: -f1) # hostname
-	p=$(echo $1 | cut -d: -f2) # port
+	p=$(echo $1 | cut -d: -f2 -s) # port
 	shift
 	if test -z $p; then p=22; fi
 	scp $_ssh_key -p -r -P $p root@$h:$1 $2
