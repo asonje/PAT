@@ -7,9 +7,7 @@ Be sure to edit the following parameters:
 ALL_NODES          (this needs to be in a format of <hostname>:<port>; the port
                     is expected to be the port ID of the SSH port, which is often 22)
 WORKER_SCRIPT_DIR  (where worker scripts will live on each worker node)
-MASTER_SCRIPT_DIR  (where master scripts will live on the master node)
 WORKER_TMP_DIR     (where workers will store temporary files on each node)
-MASTER_RESULTS_DIR (where results of "./pat run" will be stored on the master node)
 
 Next, run "./pat install" script to install PAT on all nodes. Be sure to run the 
 install script on the master node. If you wish to collect data on the master node
@@ -31,7 +29,7 @@ The recommended version of sysstat is version 9.0.4 or newer.
 At least Microsoft Office 2010 is also recommended.
 
 Once the job is done, all the data is collated and copied to the master node across
-the cluster into the "MASTER_RESULTS_DIR", under the [test_run_name] (or timestamp) folder.
+the cluster to the "results" directory, under the [test_run_name] (or timestamp) folder.
 
 To postprocess, copy the entire results directory to a Windows machine, navigate to the
 "instruments" directory and then open the provided spreadsheet template. Press Ctrl-q 

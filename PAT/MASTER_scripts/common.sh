@@ -65,7 +65,7 @@ ssh_w() {
 	p=$(echo $1 | cut -d: -f2 -s) # port
 	shift
 	if test -z $p; then p=22; fi
-	ssh $_ssh_key -p $p root@$h "$@"
+	ssh $_ssh_key -p $p $h "$@"
 }
 
 scp_to_w() {
@@ -75,7 +75,7 @@ scp_to_w() {
 	p=$(echo $1 | cut -d: -f2 -s) # port
 	shift
 	if test -z $p; then p=22; fi
-	scp $_ssh_key -p -r -P $p $1 root@$h:$2
+	scp $_ssh_key -p -r -P $p $1 $h:$2
 }
 
 scp_from_w() {
@@ -85,7 +85,7 @@ scp_from_w() {
 	p=$(echo $1 | cut -d: -f2 -s) # port
 	shift
 	if test -z $p; then p=22; fi
-	scp $_ssh_key -p -r -P $p root@$h:$1 $2
+	scp $_ssh_key -p -r -P $p $h:$1 $2
 }
 
 
