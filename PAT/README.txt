@@ -1,6 +1,21 @@
 INSTRUCTIONS
 
-To install the tool, make a copy of the "./config_template" file as "./config", 
+Dependencies:
+-gawk
+-sysstat
+-perf 
+-Microsoft Office 2010 or higher
+
+Gawk, sysstat and perf should be installed by default on every modern full-fledged Linus system. To check the version type
+gawk --version      (will tell you the version of gawk) 
+sar -V              (will tell yo the version of sysstat)
+perf --version      (will tell you the version of perf)
+The recommended version of sysstat is version 9.0.4 or newer. At least Microsoft Office 2010 is also recommended.
+
+Next, go to /proc/sys/kernel/ and set perf_event_paranoid to 0 (you need root permissions). This flag allow you 
+to trace CPU event data.
+
+To install the PAT tool, make a copy of the "./config_template" file as "./config", 
 and make all your edits within the "./config" file.
 
 Be sure to edit the following parameters: 
@@ -24,9 +39,6 @@ to start the run.
 
 The "./pat run" command can be run with an optional argument which specifies a
 name for your results, otherwise a timestamp is used. e.g %./pat run [test_run_name]
-
-The recommended version of sysstat is version 9.0.4 or newer. 
-At least Microsoft Office 2010 is also recommended.
 
 Once the job is done, all the data is collated and copied to the master node across
 the cluster to the "results" directory, under the [test_run_name] (or timestamp) folder.
