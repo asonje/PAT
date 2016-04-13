@@ -12,6 +12,7 @@ sar -V              (will tell yo the version of sysstat)
 perf --version      (will tell you the version of perf)
 The recommended version of sysstat is version 9.0.4 or newer. At least Microsoft Office 2010 is also recommended.
 
+Note, to collect PAT data you must be a root.
 Next, go to /proc/sys/kernel/ and set perf_event_paranoid to 0 (you need root permissions). This flag allow you 
 to trace CPU event data.
 
