@@ -1,0 +1,130 @@
+#!/bin/bash
+#
+# Copyright (c) 2014-2015, Intel Corporation
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# 
+#     * Redistributions of source code must retain the above copyright notice,
+#       this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of Intel Corporation nor the names of its contributors
+#       may be used to endorse or promote products derived from this software
+#       without specific prior written permission.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+if [ -z "$ALL_NODES" ]; then
+	echo "*** Please Specify at least one worker node in the config file ***"
+	exit
+fi
+
+shift # remove pat action parameter ("run")
+
+
+JOBID=$1
+
+# Function called before storing the measurement results
+function get_job_id(){
+	if test -z $JOBID; then
+		JOBID=$(date +%Y-%m-%d-%H-%M-%S)
+	fi
+	echo "** JOBID is $JOBID"
+}
+
+# Fix date & time on the workers
+source $MASTER_SCRIPT_DIR/fix_datetime
+
+# Installing instrument scripts on the workers
+source $MASTER_SCRIPT_DIR/install
+
+echo "* Setting up temporary results directory..."
+OUTDIR=$(pwd)/mst_tmp
+rm -rf $OUTDIR
+mkdir $OUTDIR
+mkdir $OUTDIR/jobhistory
+if $GC ; then
+	mkdir $OUTDIR/gc_summary
+fi
+mkdir $OUTDIR/instruments
+mkdir $OUTDIR/conf
+cp $MASTER_SCRIPT_DIR/result_template*.xlsm $OUTDIR/instruments
+
+function on_exit()
+{
+echo "Exiting Script ..." 
+source $MASTER_SCRIPT_DIR/killjob
+killall -e killjvms
+rm -rf mst_tmp  
+}
+
+#Gather the data
+#instruments
+
+get_instruments(){
+echo "** Collecting results from each node..."
+for i in $ALL_NODES; do
+	node=$(echo $i | awk '{ gsub(/:/,"-"); print }')
+	nodedir=$OUTDIR/instruments/$node
+	mkdir $nodedir
+	scp_from_w $i "$WORKER_TMP_DIR/*" $nodedir 1> /dev/null &
+done
+echo "** Done collecting results from each node."
+wait
+}
+
+#Gather conf files
+get_conf(){
+echo "** Collecting configuration files..."
+for i in $CONF_DIRS
+do
+	node=${i%%/*} # remove path from the end of the CONF_DIR (format: hostname:[path])
+	path=/${i#*/} # remove everything before the first slash
+	host=$(echo $node | cut -d: -f1)
+	if [ $node == $host ]; then
+		# No remote path provided (missing ":"), local configuration dir ($node) to be copied
+		cp -a $node $OUTDIR/conf 1> /dev/null &
+	else
+		if [ ! -d "$OUTDIR/conf/$node" ]; then mkdir $OUTDIR/conf/$node; fi
+		scp_from_w $node $path $OUTDIR/conf/$node 1> /dev/null &
+	fi
+done
+echo "** Done collecting configuration files."
+wait
+}
+
+
+# Cleaning up temporary results dir on all nodes.
+source $MASTER_SCRIPT_DIR/clean_workers
+
+#Run Data Collection Scripts
+echo "* Starting instrumentation scripts..."
+trap 'on_exit; exit' SIGINT SIGKILL SIGTERM
+source $MASTER_SCRIPT_DIR/run_measurements
+echo "* Done instrumenting workload."
+
+echo "* Starting data collection from the workers..."
+get_job_id
+get_instruments &
+get_conf &
+wait
+echo "* Done data collection."
+
+echo "* Creating results directory..."
+final_results_dir=$MASTER_RESULTS_DIR/$JOBID
+mkdir -p $final_results_dir # creating full path to the results directory
+rm -rf $final_results_dir # removing contents of the results directory
+mv $OUTDIR $final_results_dir
+echo '**** DONE ****'
+echo "Collected data located at $final_results_dir"
