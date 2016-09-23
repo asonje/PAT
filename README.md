@@ -1,7 +1,7 @@
 PAT
 ===
 
-**Performance Analysis Tool (PAT)** gather performance metrics from a Linux machine. It genertes a pdf and Microsoft Excel file that gives an instant visual representation of data, as well as csv files with raw data. PAT is easy to install and doesn't require any programming knowledge. A target audience is performance engineers and system administrators. Performance Analysis Tool signifcantly decreases the time needed to find bottlenecks and fine-tuned the system. 
+**_Performance Analysis Tool (PAT)_** gather performance metrics from a Linux machine. It genertes a pdf and Microsoft Excel file that gives an instant visual representation of data, as well as csv files with raw data. PAT is easy to install and doesn't require any programming knowledge. A target audience is performance engineers and system administrators. Performance Analysis Tool signifcantly decreases the time needed to find bottlenecks and fine-tuned the system. 
 
 ---
 
