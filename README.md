@@ -1,7 +1,33 @@
 PAT
 ===
 
-**_Performance Analysis Tool (PAT)_** gather performance metrics from a Linux machine. It genertes a pdf and Microsoft Excel file that gives an instant visual representation of data, as well as csv files with raw data. PAT is easy to install and doesn't require any programming knowledge. A target audience is performance engineers and system administrators. Performance Analysis Tool signifcantly decreases the time needed to find bottlenecks and fine-tuned the system. 
+**_Performance Analysis Tool (PAT)_** is a flexible performance profiling framework designed for Linux operating system. It gathers system level performance metrics including CPU, Disk and Network as well as detailed software hot methods. It generates a pdf and a Microsoft Excel file at the end to provide an instant visual representation of the data. PAT can be configured for a single machine, a subset of a cluster or an entire cluster of machines. User also can customize the metrics being collected. PAT can be used for workload characterization, performance study and software optimization.
+
+
+
+![CPU chart](https://cloud.githubusercontent.com/assets/13007048/18842141/eff35b3c-83c8-11e6-9c70-59e3d3e6bc1d.png)
+
+_Figure 1: CPU chart_
+
+
+
+![Disk chart with a bottleneck](https://cloud.githubusercontent.com/assets/13007048/18842140/efefe452-83c8-11e6-9f48-27eb4ca3fca7.PNG)
+
+_Figure 2: Disk chart with a bottleneck_
+
+
+
+![Network chart with a bottleneck](https://cloud.githubusercontent.com/assets/13007048/18842139/efef4df8-83c8-11e6-8fdf-b1e406d7b5fb.PNG)
+
+_Figure 3: Network chart with a bottleneck_
+
+
+
+![Perf function](https://cloud.githubusercontent.com/assets/13007048/18842138/efecdc80-83c8-11e6-87cd-eeb3538dc23a.PNG)
+
+_Figure 4: Perf function_
+
+
 
 ---
 
@@ -14,7 +40,7 @@ PAT
 
 ![Architecture Overview](https://cloud.githubusercontent.com/assets/13007048/9281698/c045391c-427b-11e5-9030-bdbc0c4d6152.jpg)
 
-_Figure 1: PAT Post-Processing architecture_
+_Figure 5: PAT Post-Processing architecture_
 
 ## II. SOFTWARE REQUIREMENTS:
 
@@ -179,7 +205,7 @@ Launch `./pat run` to collect data and then  `./pat-post-process.py` to postporc
 
 For questions regardng tool contact 
 - Olasoji Denloy at olasoji.denloye@intel.com 
-- Yingqi (Lucy) Lu at yingqui.lu@intel.com 
+- Yingqi (Lucy) Lu at yingqi.lu@intel.com
 - Eric Kaczmarek at eric.kaczmarek@intel.com
 - Agata Gruza at agata.gruza@intel.com
 
