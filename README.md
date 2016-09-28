@@ -4,15 +4,34 @@ PAT
 **_Performance Analysis Tool (PAT)_** is a flexible performance profiling framework designed for Linux operating system. It gathers system level performance metrics including CPU, Disk and Network as well as detailed software hot methods. It generates a pdf and a Microsoft Excel file at the end to provide an instant visual representation of the data. PAT can be configured for a single machine, a subset of a cluster or an entire cluster of machines. User also can customize the metrics being collected. PAT can be used for workload characterization, performance study and software optimization.
 
 
-<p align = center>
-<img src=https://cloud.githubusercontent.com/assets/13007048/18934281/aad0c776-858d-11e6-879a-a84782c4f5cb.png width="530"/>
-
-<img src=https://cloud.githubusercontent.com/assets/13007048/18934203/58dcdeaa-858d-11e6-9a90-6de592176b30.png width="530"/>
-
-<img src=https://cloud.githubusercontent.com/assets/13007048/18934205/58f22300-858d-11e6-8b3a-f8d8dac3e68d.png width="530"/>
-
-<img src=https://cloud.githubusercontent.com/assets/13007048/18934206/58f946ee-858d-11e6-9ed6-6c1f9d7f373d.png width="530"/>
+<p align = "center">
+<img src=https://cloud.githubusercontent.com/assets/13007048/18935777/294b147c-8597-11e6-852d-f29845cb7b2c.png width="530"/>
 </p>
+<p align = "center">
+Figure 1: CPU chart
+</p><br><br><br>
+
+
+<p align = "center">
+<img src=https://cloud.githubusercontent.com/assets/13007048/18935778/294d512e-8597-11e6-9d68-84dad5ebb483.png width="530"/>
+</p>
+<p align = "center">
+Figure 2: Disk chart with a bottleneck
+</p><br><br><br>
+
+<p align = "center">
+<img src=https://cloud.githubusercontent.com/assets/13007048/18935779/294ebbd6-8597-11e6-9810-6eec609b83fe.png width="530"/>
+</p>
+<p align = "center">
+Figure 3: Network chart with a bottleneck
+</p><br><br><br>
+
+<p align = "center">
+<img src=https://cloud.githubusercontent.com/assets/13007048/18935780/2950e0fa-8597-11e6-9d0c-d5437e8e4941.png width="530"/>
+</p>
+<p align = "center">
+Figure 4: Perf module
+</p><br><br><br>
 
 
 ---
@@ -26,6 +45,9 @@ PAT
 
 <p align = center>
 <img src=https://cloud.githubusercontent.com/assets/13007048/9281698/c045391c-427b-11e5-9030-bdbc0c4d6152.jpg />
+</p>
+<p align = "center">
+Figure 5: PAT Post-Processing architecture
 </p>
 
 
