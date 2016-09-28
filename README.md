@@ -32,14 +32,14 @@ Figure 3: Network chart with a bottleneck
 <p align = "center">
 Figure 4: Perf module
 </p><br><br><br>
-
+</p>
 
 ## I. ARCHITECTURE OVERVIEW:
 
 - Collecting data phase is run completely on the server.
 - In postprocess phase modular approach is being used to increase scalability.
 - Each node in the cluster is mapped to a node object.
-- The node object holds separate objects for each of the metrics (such as DISK, NETWORK, CPU, PERF) that were measured using PAT. These objects contain actual raw data in an internal data structure [Figure 1]. 
+- The node object holds separate objects for each of the metrics (such as DISK, NETWORK, CPU, PERF) that were measured using PAT. These objects contain actual raw data in an internal data structure [Figure 5]. 
 - Modules for DISK, NETWORK, CPU and PERF have been implemented.
 
 <p align = center>
