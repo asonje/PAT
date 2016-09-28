@@ -34,9 +34,8 @@ Figure 4: Perf module
 </p><br><br><br>
 
 
----
-
 ## I. ARCHITECTURE OVERVIEW:
+
 - Collecting data phase is run completely on the server.
 - In postprocess phase modular approach is being used to increase scalability.
 - Each node in the cluster is mapped to a node object.
