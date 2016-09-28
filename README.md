@@ -4,29 +4,15 @@ PAT
 **_Performance Analysis Tool (PAT)_** is a flexible performance profiling framework designed for Linux operating system. It gathers system level performance metrics including CPU, Disk and Network as well as detailed software hot methods. It generates a pdf and a Microsoft Excel file at the end to provide an instant visual representation of the data. PAT can be configured for a single machine, a subset of a cluster or an entire cluster of machines. User also can customize the metrics being collected. PAT can be used for workload characterization, performance study and software optimization.
 
 
+<p align = center>
+<img src=https://cloud.githubusercontent.com/assets/13007048/18934281/aad0c776-858d-11e6-879a-a84782c4f5cb.png width="530"/>
 
-![CPU chart](https://cloud.githubusercontent.com/assets/13007048/18842141/eff35b3c-83c8-11e6-9c70-59e3d3e6bc1d.png)
+<img src=https://cloud.githubusercontent.com/assets/13007048/18934203/58dcdeaa-858d-11e6-9a90-6de592176b30.png width="530"/>
 
-_Figure 1: CPU chart_
+<img src=https://cloud.githubusercontent.com/assets/13007048/18934205/58f22300-858d-11e6-8b3a-f8d8dac3e68d.png width="530"/>
 
-
-
-![Disk chart with a bottleneck](https://cloud.githubusercontent.com/assets/13007048/18842140/efefe452-83c8-11e6-9f48-27eb4ca3fca7.PNG)
-
-_Figure 2: Disk chart with a bottleneck_
-
-
-
-![Network chart with a bottleneck](https://cloud.githubusercontent.com/assets/13007048/18842139/efef4df8-83c8-11e6-8fdf-b1e406d7b5fb.PNG)
-
-_Figure 3: Network chart with a bottleneck_
-
-
-
-![Perf function](https://cloud.githubusercontent.com/assets/13007048/18842138/efecdc80-83c8-11e6-87cd-eeb3538dc23a.PNG)
-
-_Figure 4: Perf function_
-
+<img src=https://cloud.githubusercontent.com/assets/13007048/18934206/58f946ee-858d-11e6-9ed6-6c1f9d7f373d.png width="530"/>
+</p>
 
 
 ---
@@ -38,9 +24,10 @@ _Figure 4: Perf function_
 - The node object holds separate objects for each of the metrics (such as DISK, NETWORK, CPU, PERF) that were measured using PAT. These objects contain actual raw data in an internal data structure [Figure 1]. 
 - Modules for DISK, NETWORK, CPU and PERF have been implemented.
 
-![Architecture Overview](https://cloud.githubusercontent.com/assets/13007048/9281698/c045391c-427b-11e5-9030-bdbc0c4d6152.jpg)
+<p align = center>
+<img src=https://cloud.githubusercontent.com/assets/13007048/9281698/c045391c-427b-11e5-9030-bdbc0c4d6152.jpg />
+</p>
 
-_Figure 5: PAT Post-Processing architecture_
 
 ## II. SOFTWARE REQUIREMENTS:
 
