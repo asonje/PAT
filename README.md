@@ -5,7 +5,7 @@ PAT
 
 
 <p align = "center">
-<img src=https://cloud.githubusercontent.com/assets/13007048/18935777/294b147c-8597-11e6-852d-f29845cb7b2c.png width="530"/>
+<img src=https://cloud.githubusercontent.com/assets/13007048/19003282/f5991524-8704-11e6-9471-65438aabdf33.png width="530"/>
 </p>
 <p align = "center">
 Figure 1: CPU chart
@@ -13,14 +13,14 @@ Figure 1: CPU chart
 
 
 <p align = "center">
-<img src=https://cloud.githubusercontent.com/assets/13007048/18935778/294d512e-8597-11e6-9d68-84dad5ebb483.png width="530"/>
+<img src=https://cloud.githubusercontent.com/assets/13007048/19003283/f5995c96-8704-11e6-9b47-53156181c6c4.png width="530"/>
 </p>
 <p align = "center">
 Figure 2: Disk chart with a bottleneck
 </p><br><br><br>
 
 <p align = "center">
-<img src=https://cloud.githubusercontent.com/assets/13007048/18935779/294ebbd6-8597-11e6-9810-6eec609b83fe.png width="530"/>
+<img src=https://cloud.githubusercontent.com/assets/13007048/19003284/f59c702a-8704-11e6-9bdd-317d7d86ea7a.png width="530"/>
 </p>
 <p align = "center">
 Figure 3: Network chart with a bottleneck
