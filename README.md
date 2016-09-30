@@ -16,14 +16,14 @@ Figure 1: CPU chart
 <img src=https://cloud.githubusercontent.com/assets/13007048/19003283/f5995c96-8704-11e6-9b47-53156181c6c4.png width="530"/>
 </p>
 <p align = "center">
-Figure 2: Disk chart with a bottleneck
+Figure 2: Disk chart
 </p><br><br><br>
 
 <p align = "center">
 <img src=https://cloud.githubusercontent.com/assets/13007048/19003284/f59c702a-8704-11e6-9bdd-317d7d86ea7a.png width="530"/>
 </p>
 <p align = "center">
-Figure 3: Network chart with a bottleneck
+Figure 3: Network chart
 </p><br><br><br>
 
 <p align = "center">
