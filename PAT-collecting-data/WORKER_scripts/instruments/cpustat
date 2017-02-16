@@ -42,11 +42,11 @@ function run()
 
 	case $sar_impl in
 		2)
-		/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
+		/usr/bin/sar -P ALL $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/ && !/Linux/) {now=strftime("%s "); if(/CPU/){$1=$2=""; print "HostName","TimeStamp", $0} else {$1=$2=""; print host,now $0}}; fflush()' > $OUTDIR/cpustat &
 		;;
 
 		*) # sar_impl == 1
-		/usr/bin/sar -u $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
+		/usr/bin/sar -P ALL $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/) {$1=""; $2=""; now=strftime("%s "); if(/CPU/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()' > $OUTDIR/cpustat &
 		;;
 	esac
 }
