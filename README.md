@@ -1,5 +1,3 @@
-:warning: :warning: :warning: **_We are fixing bugs and revamping PAT. Stay tuned!_**
-
 PAT
 ===
 
@@ -60,8 +58,8 @@ Figure 5: PAT Post-Processing architecture
   - perf 
 - For postprocess data
   - MS Office 2010 or higher
-  - Python 2.7.x+ (on the python2 series). Post-process script will NOT work on Python 3.x+
-  - matplotlib 1.3.1+
+  - **Python 2.7.x+ (on the python2 series). Post-process script will NOT work on Python 3.x+**
+  - matplotlib 1.3.1+ **matplotlib 1.5.3 is the last one that post-process script will work on**
   - xlsxwriter 0.6.3+
 
 ## III. STEPS FOR INSTALLING DEPENDENCIES:
