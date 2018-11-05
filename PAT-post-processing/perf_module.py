@@ -375,7 +375,7 @@ def plotter(ax, application, time_stamp_array, cycle, metric_list, m_type):
             data, res = get_data_for_graph([app_ts, app_cycle])
             app_ts = data[0]
             app_cycle = data[1]
-            ax.plot(app_ts, app_cycle, label=" "+metric[:25], rasterized=True)
+            ax.plot(app_ts, app_cycle, label=" "+metric[:25], rasterized=False)
             max_res = max(max_res, res)
 
     ax_caption = "resolution - 1:" + str(max_res)
