@@ -31,7 +31,7 @@ CMD=$3
 
 function run()
 {
-	/usr/bin/iostat -x -k -d $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device/){if($1 == "Device"){gsub("Device", "Device:");}{print "HostName","TimeStamp", $0} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
+	/usr/bin/iostat -x -k -d $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){now=strftime("%s ");if(/Device/){if($1 == "Device"){gsub("Device", "Device:");}{print "HostName","TimeStamp", $0}} else{ if($0 && !/Linux/) print host, now $0}}; fflush()' > $OUTDIR/iostat &
 }
 
 case $CMD in
