@@ -113,7 +113,7 @@ Installing pip using `sudo yum install python-pip` may install an older version 
 
 **_(recomended)_**
 
-    sudo pip install python-matplotlib
+    sudo pip install matplotlib
 
 **_(Fedora / CentOS / RHEL) (pip is not installed)_**
 
