@@ -7,21 +7,22 @@ Base_dir=/home/test1
 ################################################################################
 PAT_POST_HOME=$( cd $( dirname ${BASH_SOURCE[0]} ) && pwd )
 
-Original_name="PAT-Result"
-for item in `ls ${Base_dir}`
+cd ${Base_dir}
+for item in `ls -d */` ## only dirs under ${Base_dir}
 do
-	echo "Processing ${item}..."
-	New_name=${item}
-	New_dir=${Base_dir}/${item}/instruments/
-	sed -i "s/${Original_name}/${New_name}/g" ${PAT_POST_HOME}/pat-post-process.py
-	sed -i "s|<source>.*</source>|<source>${New_dir}</source>|g" ${PAT_POST_HOME}/config.xml
-	${PAT_POST_HOME}/pat-post-process.py
-	echo "${item} done!"
-	Original_name=${New_name}
+	echo "Processing ${item} ..."
+	New_dir=${Base_dir}/${item}/instruments
+	if [ -d ${New_dir} ]; then
+		sed -i "s|<source>.*</source>|<source>${New_dir}</source>|g" ${PAT_POST_HOME}/config.xml
+		${PAT_POST_HOME}/pat-post-process.py ${PAT_POST_HOME}/config.xml
+		echo "${item} done!"
+	else
+		echo "WARNING: ${item} is not a PAT file, will ignore!"
+	fi
 done
 ## change back to original value
-sed -i "s/${Original_name}/PAT-Result/g" ${PAT_POST_HOME}/pat-post-process.py
 sed -i "s|<source>.*</source>|<source>/foo/bar/instruments/</source>|g" ${PAT_POST_HOME}/config.xml
+cd -
 
 
 
