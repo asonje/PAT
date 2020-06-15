@@ -331,9 +331,10 @@ def generate_output(cluster):
                     disk_module.plot_graph(
                         node.disk_obj.avg_array, pp, str(node_name))
             if en_all_net == 'yes' or en_all_net == 'Yes':
-                node_name = node.net_obj.data_array[1][0]
-                net_module.plot_graph(
-                    node.net_obj.avg_array, pp, str(node_name))
+                if hasattr(node, 'net_obj'):
+                    node_name = node.net_obj.data_array[1][0]
+                    net_module.plot_graph(
+                        node.net_obj.avg_array, pp, str(node_name))
             if en_all_perf == 'yes' or en_all_perf == 'Yes':
                 if hasattr(node, 'perf_obj'):
                     node_name = node.perf_obj.data_array[1][0]
@@ -354,9 +355,10 @@ def generate_output(cluster):
                                                node.perf_obj.avg_array,
                                                metric_list, "node", None, None)
             if en_all_memory == 'yes' or en_all_memory == 'Yes':
-                node_name = node.memory_obj.data_array[1][0]
-                memory_module.plot_graph(
-                    node.memory_obj.avg_array, pp, str(node_name))
+                if hasattr(node, 'perf_obj'):
+                    node_name = node.memory_obj.data_array[1][0]
+                    memory_module.plot_graph(
+                        node.memory_obj.avg_array, pp, str(node_name))
         print "----Finished pdf", time.ctime(), "----"
         pp.close()
 
