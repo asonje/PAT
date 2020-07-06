@@ -57,7 +57,7 @@ class Disk(pat_base):
         self.wkbps_index = self.title_line.index("wkB/s")
         self.r_await_index = self.title_line.index("r_await")
         self.w_await_index = self.title_line.index("w_await")
-        self.svctm_index = self.title_line.index("svctm")
+        self.util_index = self.title_line.index("%util")
         del self.data_array[0]
 
         self.time_stamp_array = []
@@ -71,7 +71,7 @@ class Disk(pat_base):
         self.wkbps = []
         self.r_await = []
         self.w_await = []
-        self.svctm = []
+        self.util = []
         for self.row in self.data_array:
             self.rps.append(float(self.row[self.rps_index]))
             self.wps.append(float(self.row[self.wps_index]))
@@ -79,7 +79,7 @@ class Disk(pat_base):
             self.wkbps.append(float(self.row[self.wkbps_index]))
             self.r_await.append(float(self.row[self.r_await_index]))
             self.w_await.append(float(self.row[self.w_await_index]))
-            self.svctm.append(float(self.row[self.svctm_index]))
+            self.util.append(float(self.row[self.util_index]))
 
         self.ts_sum = []
         self.avg_ind = 0
@@ -114,8 +114,8 @@ class Disk(pat_base):
         self.w_await_sum = self.get_sum(self.w_await_index, self.w_await)
         self.avg_array.append(self.w_await_sum)
 
-        self.svctm_sum = self.get_sum(self.svctm_index, self.svctm)
-        self.avg_array.append(self.svctm_sum)
+        self.util_sum = self.get_sum(self.util_index, self.util)
+        self.avg_array.append(self.util_sum)
 
         self.data_array.insert(0, self.title_line)
         return self.avg_array
@@ -146,7 +146,7 @@ def get_avg_data(cluster, name_node):
     rkbps_dic = {}
     r_await_dic = {}
     w_await_dic = {}
-    svctm_dic = {}
+    util_dic = {}
     count_dic = {}
 
     for node in cluster:
@@ -179,10 +179,10 @@ def get_avg_data(cluster, name_node):
                         w_await += node.disk_obj.avg_array[6][index]
                         w_await_dic.update(dict([(node.disk_obj.ts_sum[index],
                                                 w_await)]))
-                        svctm = svctm_dic.get(node.disk_obj.ts_sum[index])
-                        svctm += node.disk_obj.avg_array[7][index]
-                        svctm_dic.update(dict([(node.disk_obj.ts_sum[index],
-                                                svctm)]))
+                        util = util_dic.get(node.disk_obj.ts_sum[index])
+                        util += node.disk_obj.avg_array[7][index]
+                        util_dic.update(dict([(node.disk_obj.ts_sum[index],
+                                                util)]))
                         cnt = count_dic.get(node.disk_obj.ts_sum[index])
                         cnt += 1
                         count_dic.update(dict([(node.disk_obj.ts_sum[
@@ -200,7 +200,7 @@ def get_avg_data(cluster, name_node):
                             index], node.disk_obj.avg_array[5][index])]))
                         w_await_dic.update(dict([(node.disk_obj.ts_sum[
                             index], node.disk_obj.avg_array[6][index])]))
-                        svctm_dic.update(dict([(node.disk_obj.ts_sum[
+                        util_dic.update(dict([(node.disk_obj.ts_sum[
                             index], node.disk_obj.avg_array[7][index])]))
                         count_dic.update(dict([(node.disk_obj.ts_sum[
                             index], 1)]))
@@ -213,7 +213,7 @@ def get_avg_data(cluster, name_node):
         wkbps = wkbps_dic.values()
         r_await = r_await_dic.values()
         w_await = w_await_dic.values()
-        svctm = svctm_dic.values()
+        util = util_dic.values()
         count = count_dic.values()
         rps = [x for y, x in sorted(zip(ts, rps))]
         wps = [x for y, x in sorted(zip(ts, wps))]
@@ -221,7 +221,7 @@ def get_avg_data(cluster, name_node):
         wkbps = [x for y, x in sorted(zip(ts, wkbps))]
         r_await = [x for y, x in sorted(zip(ts, r_await))]
         w_await = [x for y, x in sorted(zip(ts, w_await))]
-        svctm = [x for y, x in sorted(zip(ts, svctm))]
+        util = [x for y, x in sorted(zip(ts, util))]
         count = [x for y, x in sorted(zip(ts, count))]
         ts = sorted(ts)
 
@@ -237,9 +237,9 @@ def get_avg_data(cluster, name_node):
             r_await[index] = row / count[index]
         for index, row in enumerate(w_await):
             w_await[index] = row / count[index]
-        for index, row in enumerate(svctm):
-            svctm[index] = row / count[index]
-        avg_array = [ts, wps, rps, wkbps, rkbps, r_await, w_await, svctm]
+        for index, row in enumerate(util):
+            util[index] = row / count[index]
+        avg_array = [ts, wps, rps, wkbps, rkbps, r_await, w_await, util]
         return avg_array
     else:
         return None
@@ -326,7 +326,7 @@ def plot_graph(data, pp, graph_title):
             color='#00297A', alpha=0.9, linewidth=0.5, rasterized=True)
     ax.plot(x, data[5], label='w_await',
             color='#004f7a', alpha=0.9, linewidth=0.5, rasterized=True)
-    ax.plot(x, data[6], label='svctm',
+    ax.plot(x, data[6], label='util',
             color='#800000', alpha=0.9, linewidth=0.5, rasterized=True)
     ax.fill_between(x, 0, data[5], facecolor='#00297A',
                     alpha=0.45, linewidth=0.01, rasterized=True)
@@ -378,12 +378,12 @@ def get_data_for_graph(data_array):
         for entry in data_array[6]:
             w_await.append(float(entry))
         new_w_await = get_graph_mean(x, w_await)
-        svctm = []
+        util = []
         for entry in data_array[7]:
-            svctm.append(float(entry))
-        new_svctm = get_graph_mean(x, svctm)
+            util.append(float(entry))
+        new_util = get_graph_mean(x, util)
         return [new_ts, new_wps, new_rps, new_wkbps, new_rkbps, new_r_await, new_w_await,
-                new_svctm], x
+                new_util], x
     else:
         return data_array, x
 
