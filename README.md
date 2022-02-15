@@ -53,14 +53,14 @@ Figure 5: PAT Post-Processing architecture
 ## II. SOFTWARE REQUIREMENTS:
 
 - For collecting data
-  - Linux Sysstat (version 9.0.4 or newer) 
+  - Linux sysstat (version 12.2.0 or newer)
   - gawk 
   - perf 
 - For postprocess data
   - MS Office 2010 or higher
-  - **Python 2.7.x+ (on the python2 series). Post-process script will NOT work on Python 3.x+**
-  - matplotlib 1.3.1+ **matplotlib 1.5.3 is the last one that post-process script will work on**
-  - xlsxwriter 0.6.3+
+  - **Python 3.8.x+ (on the python3 series). **
+  - matplotlib 3.1.2+
+  - XlsxWriter 3.0.2+
 
 ## III. STEPS FOR INSTALLING DEPENDENCIES:
 
@@ -85,7 +85,7 @@ Gawk, sysstat and perf should be installed by default on every modern full-fledg
 
 
 ## Python:
-If you are working on Linux machine then by default you should have Python already install. Update to 2.7 if you have older version.  
+If you are working on Linux machine then by default you should have Python already install. Update to 3.8 if you have older version.
 
 Make sure you are using the same version of Python as the OS is using. To check that
 
@@ -94,7 +94,7 @@ Make sure you are using the same version of Python as the OS is using. To check 
 2. `python` will tell you which version of Python you are using and `which python` will tell you the location of Python you are using. You want 1. and 2. to be the same. 
 
 ## pip:
-If you have Python 2.7.9+ (on the python2 series) or Python 3.4+ then by default you ought to have pip already install. If not, then
+If you have Python 3.8+ then by default you ought to have pip already install. If not, then
 
 **_(recomended)_**
 
