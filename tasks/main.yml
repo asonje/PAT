@@ -1,2 +1,30 @@
 ---
-# tasks file for PAT
+- ansible.builtin.import_tasks: setup.yml
+
+- block:
+    - ansible.builtin.include_tasks:
+        file: start_instruments.yml
+        apply:
+          environment:
+            LC_TIME: en_US.UTF-8
+
+    - name: run workload
+      ansible.builtin.shell: "{{ CMD_PATH }}"
+      delegate_to: localhost
+      run_once: true
+      delay: "{{ PRE_EXEC_DELAY }}"
+
+    - name: delay after running the workload
+      ansible.builtin.pause:
+        seconds: "{{ POST_EXEC_DELAY }}"
+      when: POST_EXEC_DELAY > 0
+
+  always:
+    - ansible.builtin.import_tasks: stop_instruments.yml
+
+- ansible.builtin.import_tasks: post_process.yml
+
+- name: show job id
+  ansible.builtin.debug:
+    msg: JOB_ID is {{ JOB_ID }}
+  run_once: true

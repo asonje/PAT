@@ -1,2 +1,8 @@
 ---
-# defaults file for PAT
+WORKER_SCRIPT_DIR: /tmp/PAT
+WORKER_TMP_DIR: /tmp/PAT_TMP
+CMD_PATH: sleep 30
+PRE_EXEC_DELAY: 0
+POST_EXEC_DELAY: 0
+SAMPLE_RATE: 1
+INSTRUMENTS: cpustat memstat netstat iostat vmstat jvms perf

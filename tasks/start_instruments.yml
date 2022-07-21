@@ -1,0 +1,26 @@
+---
+- ansible.builtin.set_fact:
+    JOB_ID: "{{ ansible_date_time.iso8601_basic_short }}_{{ lookup('community.general.random_string', special=false, length=4) }}"
+  run_once: true
+
+- name: create directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ WORKER_SCRIPT_DIR }}"
+    - "{{ WORKER_TMP_DIR }}"
+
+- name: deploy measurement scripts
+  ansible.builtin.template:
+    src: "{{ item }}.j2"
+    dest: "{{ WORKER_SCRIPT_DIR }}/{{ item }}"
+    mode: '0755'
+  loop: "{{ INSTRUMENTS.split() }}"
+
+- name: start measurement processes
+  ansible.builtin.shell: "nohup ./{{ item }} run > {{ WORKER_TMP_DIR }}/{{ item }} 2>/dev/null </dev/null &"
+  args:
+    chdir: "{{ WORKER_SCRIPT_DIR }}"
+  loop: "{{ INSTRUMENTS.split() }}"

@@ -1,0 +1,25 @@
+---
+- name: get running measurements
+  ansible.builtin.shell: "ps -ef | grep [t]ag={{ JOB_ID }} | awk '{print $2}'"
+  register: running_measurements
+
+- name: kill running measurements
+  ansible.builtin.shell: "kill {{ item }}"
+  with_items: "{{ running_measurements.stdout_lines }}"
+
+- wait_for:
+    path: "/proc/{{ item }}/status"
+    state: absent
+  with_items: "{{ running_measurements.stdout_lines }}"
+  ignore_errors: yes
+  register: killed_measurements
+
+- name: force kill stuck measurements
+  ansible.builtin.shell: "kill -9 {{ item }}"
+  with_items: "{{ killed_measurements.results | select('failed') | map(attribute='item') | list }}"
+
+- name: stop perf measurement
+  ansible.builtin.file:
+    path: "{{ WORKER_TMP_DIR }}/perf.pid"
+    state: absent
+  when: '"perf" in INSTRUMENTS.split()'

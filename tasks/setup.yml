@@ -1,0 +1,63 @@
+---
+- name: check command binaries
+  ansible.builtin.shell: "command -v {{ item }}"
+  register: "command_v"
+  loop:
+    - gawk
+    - sar
+    - perf
+  ignore_errors: yes
+
+- ansible.builtin.set_fact:
+    binary_missing: "{{ command_v.results | selectattr('rc', 'gt', 0) | length > 0 }}"
+
+- block:
+    - name: install debian packages
+      ansible.builtin.apt:
+        name:
+          - gawk
+          - sysstat
+          - linux-tools-generic
+      when: ansible_facts['os_family'] == "Debian" and binary_missing
+
+    - name: install rhel packages
+      ansible.builtin.dnf:
+        name:
+          - gawk
+          - sysstat
+          - perf
+      when: ansible_facts['os_family'] == "RedHat" and binary_missing
+
+    - name: set perf_event_paranoid and kptr_restrict to 0
+      ansible.posix.sysctl:
+        name: '{{ item.name }}'
+        value: '{{ item.value }}'
+        sysctl_set: yes
+        state: present
+        reload: yes
+      loop:
+        - { name: kernel.perf_event_paranoid, value: 0 }
+        - { name: kernel.kptr_restrict, value: 0 }
+  become: yes
+
+- name: detect binary versions
+  ansible.builtin.shell: "{{ item }}"
+  register: "version_grep"
+  loop:
+    - "gawk --version | grep Awk | cut -d ',' -f 1 | awk '{print \"gawk\", $3}'"
+    - "sar -V | grep version | awk '{print \"sar\", $3}'"
+    - "perf --version | grep version | awk '{print \"perf\", $3}' | cut -d '-' -f 1"
+
+- ansible.builtin.set_fact:
+    binary_version: "{{ binary_version | d({}) | combine(dict([item])) }}"
+  loop: "{{ version_grep.results | map(attribute='stdout') | map('split', ' ') }}"
+
+- name: check binary version requirements
+  ansible.builtin.assert:
+    that:
+      - binary_version[item.name] is version(item.value, '>=')
+    fail_msg: "{{ item.name }} {{ binary_version[item.name] }} did not meet the minumum requirement of version {{ item.value }}"
+  loop:
+    - { name: gawk, value: 4.0.0 }
+    - { name: sar, value: 10.0.3 }
+    - { name: perf, value: 3.0.0 }

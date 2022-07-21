@@ -1,0 +1,8 @@
+# These role have been tested with these PIP component.
+# To install the required version yourself, use a command as:
+# `python -m pip install -r requirements.txt`
+# See the pip requirements file documentation for details:
+# https://pip.pypa.io/en/stable/user_guide/#requirements-files
+#
+# Tests run on the previous and current (latest) version of Ansible.
+ansible-core>=2.11.0

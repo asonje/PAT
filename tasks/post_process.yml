@@ -1,0 +1,46 @@
+---
+- block:
+    - name: creating results directory
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/results/{{ JOB_ID }}/instruments"
+        state: directory
+        mode: '0755'
+
+    - name: copy result template file to instruments
+      ansible.builtin.copy:
+        src: result_templatev1.xlsm
+        dest: "{{ playbook_dir }}/results/{{ JOB_ID }}/instruments"
+  delegate_to: localhost
+  run_once: true
+
+- block:
+    - name: start perf post-process
+      ansible.builtin.shell: "./perf post-process > {{ WORKER_TMP_DIR }}/perfout"
+      args:
+        chdir: "{{ WORKER_SCRIPT_DIR }}"
+
+    - name: collect perf results from each node
+      ansible.builtin.fetch:
+        src: "{{ WORKER_TMP_DIR }}/perfout"
+        dest: "{{ playbook_dir }}/results/{{ JOB_ID }}/instruments/{{ ansible_hostname }}/"
+        flat: yes
+  when: '"perf" in INSTRUMENTS.split()'
+
+- name: collect results from each node
+  ansible.builtin.fetch:
+    src: "{{ WORKER_TMP_DIR }}/{{ item }}"
+    dest: "{{ playbook_dir }}/results/{{ JOB_ID }}/instruments/{{ ansible_hostname }}/"
+    flat: yes
+  loop: "{{ INSTRUMENTS.split() }}"
+
+- name: remove script files
+  ansible.builtin.file:
+    path: "{{ WORKER_SCRIPT_DIR }}/{{ item }}"
+    state: absent
+  loop: "{{ INSTRUMENTS.split() }}"
+
+- name: remove data files
+  ansible.builtin.file:
+    path: "{{ WORKER_TMP_DIR }}/{{ item }}"
+    state: absent
+  loop: "{{ INSTRUMENTS.split() }}"
