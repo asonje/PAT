@@ -34,13 +34,16 @@ Figure 4: Perf module
 Requirements
 ------------
 
-* pip packages listed in [requirements.txt](https://github.com/zyluo/PAT/blob/ansible_role/requirements.txt).
+* Python >= v3.8
+
+* [Ansible](https://pypi.org/project/ansible-core/) >= 2.11.0
+
+* Ansible Galaxy role and collections
 
 ```bash
-python3.8 -m venv ansible-venv
-source ansible-venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -r https://raw.githubusercontent.com/zyluo/PAT/ansible_role/requirements.txt
+ansible-galaxy install zyluo.pat
+ansible-galaxy collection install ansible.posix
+ansible-galaxy collection install community.general
 ```
 
 Role Variables
@@ -66,16 +69,6 @@ mkdir PAT
 cd PAT
 ```
 
-* Define PAT role in `requirements.yml` file
-
-```yml
----
-roles:
-  - src: https://github.com/zyluo/PAT.git
-    scm: git
-    version: ansible_role
-```
-
 * Configure PAT variables in `site.yml` playbook
 
 ```yml
@@ -83,10 +76,10 @@ roles:
 - name: Monitor system performance and usage activity for all hosts
   hosts: all
   vars_files:
-    - roles/PAT/vars/config.yml
+    - ~/.ansible/roles/zyluo.pat/vars/config.yml
 
   roles:
-    - role: PAT
+    - role: zyluo.pat
       vars:
         SAMPLE_RATE: 3
         INSTRUMENTS: "cpustat memstat"
@@ -105,12 +98,9 @@ ansible_ssh_user=username
 ansible_ssh_private_key_file=/path/to/private_key
 ```
 
-* Dependencies installation and playbook run
+* Run playbook
 
 ```bash
-ansible-galaxy install --roles-path roles/ --role-file requirements.yml
-ansible-galaxy collection install ansible.posix
-ansible-galaxy collection install community.general
 ansible-playbook -i inventory site.yml
 ```
 
