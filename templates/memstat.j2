@@ -25,26 +25,41 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SAMPLING_INTERVAL={{ SAMPLE_RATE }}
 CMD=$1
 
 function run()
 {
-	sar_impl=2
-
-
-	case $sar_impl in
-		2)
-		/usr/bin/sar -rSB $SAMPLING_INTERVAL | awk -v host=$(hostname) -v tag={{ JOB_ID }} '(!/^$/ && !/Linux/){$1="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }; fflush()'
-		;;
-
-		*) # sar_impl == 1
-		/usr/bin/sar -rSB $SAMPLING_INTERVAL |awk -v host=$(hostname) '(!/^$/){if($0 && !/Linux/){if($0){$1="";$2="";if(/pgpgin/)now=strftime("%s ");if(NR>3 && NR%9==3){if(/pgpgin/){print "HostName", "TimeStamp " header"\n" host, now val;header=""; val=""}else {print host, now header"\n" host, now val;header=""; val=""}};if(NR%3==0) {header=header" "$0;}; if(NR%3==1) val=val" "$0; }}}; fflush()'
-		;;
-	esac
+  /usr/bin/sar -rSB {{ SAMPLE_RATE }} | awk -v host=$(hostname) -v tag={{ JOB_ID }} -v step={{ SAMPLE_RATE }} '
+  BEGIN {
+    flag = 1
+    epoch = systime()
+    header = "HostName TimeStamp"
+    val = host FS epoch
+  }
+  (NF && NR > 2) {
+    if ($2 == "pgpgin/s" && NR > 3) {
+      if (flag) {
+        flag = ! flag
+        print header
+      }
+      print val
+      epoch = epoch + step
+      val = host FS epoch
+    }
+    line = NR - 2
+    if (flag && line % 3 == 1) {
+      $1 = header
+      header = $0
+    }
+    if (line % 3 == 2) {
+      $1 = val
+      val = $0
+    }
+  }
+  fflush()'
 }
 
 case $CMD in
-	"run") run ;;
-	"post-process") ;;
+  "run") run ;;
+  "post-process") ;;
 esac

@@ -6,7 +6,7 @@
         file: start_instruments.yml
         apply:
           environment:
-            LC_TIME: en_US.UTF-8
+            LC_TIME: POSIX
 
     - name: run workload
       ansible.builtin.shell: "{{ CMD_PATH }}"

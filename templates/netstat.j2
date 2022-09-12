@@ -25,25 +25,33 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SAMPLING_INTERVAL={{ SAMPLE_RATE }}
 CMD=$1
 
 function run()
 {
-	sar_impl=2
-
-	case $sar_impl in
-		2)
-		/usr/bin/sar -n DEV $SAMPLING_INTERVAL | awk -v host=$(hostname) -v tag={{ JOB_ID }} '(!/^$/ && !/Linux/){now=strftime("%s "); $1=""; if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}; fflush()'
-		;;
-
-		*) # sar_impl == 1
-		/usr/bin/sar -n DEV $SAMPLING_INTERVAL | awk -v host=$(hostname) '(!/^$/){if($0 &&!/Linux/){$1=""; $2=""; now=strftime("%s "); if(/IFACE/){print "HostName","TimeStamp", $0} else {print host,now $0}}}; fflush()'
-		;;
-	esac
+  /usr/bin/sar -n DEV {{ SAMPLE_RATE }} | awk -v host=$(hostname) -v tag={{ JOB_ID }} -v step={{ SAMPLE_RATE }} '
+  BEGIN {
+    flag = 1
+    epoch = systime()
+  }
+  (NF && NR > 2) {
+    if ($2 == "IFACE") {
+      if (flag) {
+        flag = ! flag
+        $1 = "TimeStamp"
+        print "HostName", $0
+      } else {
+        epoch = epoch + step
+      }
+    } else {
+      $1 = epoch
+      print host, $0
+    }
+  }
+  fflush()'
 }
 
 case $CMD in
-	"run") run ;;
-	"post-process") ;;
+  "run") run ;;
+  "post-process") ;;
 esac
