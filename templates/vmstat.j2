@@ -25,15 +25,28 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SAMPLING_INTERVAL={{ SAMPLE_RATE }}
 CMD=$1
 
 function run()
 {
-	/usr/bin/vmstat -n $SAMPLING_INTERVAL | awk -v host=$(hostname) -v tag={{ JOB_ID }} '(!/procs/) && (!/^$/){now=strftime("%s ");if($0 && !/Linux/) if(/swpd/){print "HostName","TimeStamp",$0} else{ print host,now $0}}; fflush()'
+  /usr/bin/vmstat -n {{ SAMPLE_RATE }} | awk -v host=$(hostname) -v tag={{ JOB_ID }} -v step={{ SAMPLE_RATE }} '
+  BEGIN {
+    flag = 1
+    epoch = systime()
+  }
+  (NF && NR > 1) {
+    if (flag && $3 == "swpd") {
+      flag = ! flag
+      print "HostName", "TimeStamp", $0
+    } else {
+      print host, epoch, $0
+      epoch = epoch + step
+    }
+  }
+  fflush()'
 }
 
 case $CMD in
-	"run") run ;;
-	"post-process") ;;
+  "run") run ;;
+  "post-process") ;;
 esac
