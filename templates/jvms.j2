@@ -25,22 +25,29 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SAMPLING_INTERVAL={{ SAMPLE_RATE }}
 CMD=$1
 
 function run()
 {
-	(
-	echo MapCount ReduceCount
-	while :
-	do
-		echo $[$(ps aux | grep -v '/bin/bash' | grep _m_ | wc -l) - 1] $[$(ps aux | grep -v '/bin/bash' | grep _r_ | wc -l) - 1]
-		sleep $SAMPLING_INTERVAL
-	done
-	) | awk -v host=$(hostname) -v tag={{ JOB_ID }} '(!/^$/){now=strftime("%s ");if($0 && !/Linux/) if (/MapCount/){print "HostName","TimeStamp",$0} else {print host,now $0}}; fflush()'
+  (
+    while :
+    do
+      echo $(ps aux | grep -v '/bin/bash' | grep _[m]_ | wc -l) $(ps aux | grep -v '/bin/bash' | grep _[r]_ | wc -l)
+      sleep {{ SAMPLE_RATE }}
+    done
+  ) | awk -v host=$(hostname) -v tag={{ JOB_ID }} -v step={{ SAMPLE_RATE }} '
+  BEGIN {
+    print "HostName", "TimeStamp", "MapCount", "ReduceCount"
+    epoch = systime()
+  }
+  (NF) {
+    print host, epoch, $0
+    epoch = epoch + step
+  }
+  fflush()'
 }
 
 case $CMD in
-	"run") run ;;
-	"post-process") ;;
+  "run") run ;;
+  "post-process") ;;
 esac
