@@ -212,10 +212,9 @@ Launch `./pat run` to collect data and then  `./pat-post-process.py` to postporc
 
 
 For questions regardng tool contact 
+- Assane Diop at assane.diop@intel.com
 - Olasoji Denloy at olasoji.denloye@intel.com 
-- Yingqi (Lucy) Lu at yingqi.lu@intel.com
 - Eric Kaczmarek at eric.kaczmarek@intel.com
-- Agata Gruza at agata.gruza@intel.com
 
 
 
