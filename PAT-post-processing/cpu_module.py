@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 #
 # Copyright (c) 2015, Intel Corporation
 #
@@ -497,7 +497,7 @@ def write_excel(cluster, wb):
 def csv_writer(cluster, csv_path_cpu):
     """write data to a CSV file path""" 
 
-    csv_file = open(csv_path_cpu, "wb")
+    csv_file = open(csv_path_cpu, "w")
     for node in cluster:
         if hasattr(node, 'cpu_obj'):
             node_data = node.cpu_obj.data_array
