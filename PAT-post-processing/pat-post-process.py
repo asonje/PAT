@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 #
 # Copyright (c) 2015, Intel Corporation
 # 
@@ -41,12 +41,12 @@ import time
 cur_python_version = sys.version_info
 #platform.python_version()
 #cur_version[:2] will give you first two elements of the list
-if cur_python_version[:2] >= (2,7):
+if cur_python_version[:2] >= (3,8):
     found = True
-    print "---- You currently have Python " + sys.version
+    print("---- You currently have Python " + sys.version)
 else:
     found = False
-    print "---- Error, You need python 2.7.x+ and currently you have " + sys.version
+    print("---- Error, You need python 3.8.x+ and currently you have " + sys.version)
 
 #====================== matplotlib ===========================
 try:
@@ -56,15 +56,15 @@ try:
     req_matplotlib_version = '1.3.1'.replace(".", "")
     if cur_matplotlib_version.isdigit() >= req_matplotlib_version.isdigit():
         found = True
-        print "---- You currently have matplotlib " + matplotlib.__version__
+        print("---- You currently have matplotlib " + matplotlib.__version__)
     else:   
         found = False
-        print "---- Error, You need matplotlib 1.3.1+ and currently you have " + matplotlib.__version__
+        print("---- Error, You need matplotlib 1.3.1+ and currently you have " + matplotlib.__version__)
 
 except ImportError: #handle exception
     found = False
-    print '---- missing dependency - python-matplotlib' + \
-        '\n---- Please install python module - matplotlib'
+    print('---- missing dependency - python-matplotlib' + \
+        '\n---- Please install python module - matplotlib')
 
 #===================== xlsxwriter ===========================        
 try:
@@ -73,24 +73,24 @@ try:
     req_xlsxwriter_version = '0.6.3'.replace(".", "")
     if cur_xlsxwriter_version.isdigit() >= req_xlsxwriter_version.isdigit():
         found = True
-        print "---- You currently have xlsxwriter " + xlsxwriter.__version__
+        print("---- You currently have xlsxwriter " + xlsxwriter.__version__)
     else:   
         found = False
-        print "---- Error, You need xlsxwriter 0.6.3+ and currently you have " + xlsxwriter.__version__
+        print("---- Error, You need xlsxwriter 0.6.3+ and currently you have " + xlsxwriter.__version__)
 
 except ImportError: #handle exception
     found = False
-    print '---- missing dependency - python-xlsxwriter' + \
-        '\n---- Please install python module - xlsxwriter'
+    print('---- missing dependency - python-xlsxwriter' + \
+        '\n---- Please install python module - xlsxwriter')
 
 #==================== starting stript =====================
 if found is False:
-    print '---- Must use Python 2.7 or grater' + \
-    '\n---- dependencies missing - exiting script >>>>>>>>>>>'
+    print('---- Must use Python 3.8 or grater' + \
+    '\n---- dependencies missing - exiting script >>>>>>>>>>>')
     sys.exit()
 else:
-    print '---- You have all required dependencies' + \
-    '\n---- PAT-post-processing script will start automatically'
+    print('---- You have all required dependencies' + \
+    '\n---- PAT-post-processing script will start automatically')
 
 
 def get_dirpaths(directory):
@@ -122,7 +122,7 @@ class Node(object):
             self.cpu_obj = cpu_module.Cpu(self.node_file_paths[0])
             self.has_cpu = True
         else:
-            print 'file missing or empty: ', self.node_file_paths[0]
+            print('file missing or empty: ', self.node_file_paths[0])
             self.has_cpu = False
 
         # file at location [1] is disk file
@@ -130,14 +130,14 @@ class Node(object):
                 self.node_file_paths[1]).st_size != 0:
             self.disk_obj = disk_module.Disk(self.node_file_paths[1])
         else:
-            print 'file missing or empty: ', self.node_file_paths[1]
+            print('file missing or empty: ', self.node_file_paths[1])
 
         # file at location [2] is net file
         if os.path.isfile(self.node_file_paths[2]) and os.stat(
                 self.node_file_paths[2]).st_size != 0:
             self.net_obj = net_module.Net(self.node_file_paths[2])
         else:
-            print 'file missing or empty: ', self.node_file_paths[2]
+            print('file missing or empty: ', self.node_file_paths[2])
 
         # file at location [3] is perf file
         if os.path.isfile(self.node_file_paths[3]) and os.stat(
@@ -149,14 +149,14 @@ class Node(object):
                 self.perf_obj = perf_module.Perf(self.node_file_paths[3],
                                                  None)
         else:
-            print 'file missing or empty: ', self.node_file_paths[3]
+            print('file missing or empty: ', self.node_file_paths[3])
 
         # file at location [4] is memory file
         if os.path.isfile(self.node_file_paths[4]) and os.stat(
                 self.node_file_paths[4]).st_size != 0:
             self.memory_obj = memory_module.Memory(self.node_file_paths[4])
         else:
-            print 'file missing or empty: ', self.node_file_paths[4]
+            print('file missing or empty: ', self.node_file_paths[4])
 
     def get_file_paths(self, node_folder_path):
         """generate file paths for raw files for a node"""
@@ -274,24 +274,24 @@ def generate_output(cluster):
         name_node = root[4].text
 
     if en_pdf == 'yes':
-        print "----Rendering pdf", time.ctime(), "----"
+        print("----Rendering pdf", time.ctime(), "----")
 
         # global pdf file that will contain all charts
         pp = PdfPages(result_path + '/PAT-Result.pdf')
 
-        # print average cpu utilization graph to pdf
+        # print(average cpu utilization graph to pdf
         if en_avg_cpu == 'yes' or en_avg_cpu == 'Yes':
             cpu_data = cpu_module.get_avg_data(cluster, name_node)
             if cpu_data is not None:
                 cpu_module.plot_graph(cpu_data, pp, 'All-nodes average')
 
-        # print average disk utilization graph to pdf
+        # print(average disk utilization graph to pdf
         if en_avg_disk == 'yes' or en_avg_disk == 'Yes':
             disk_data = disk_module.get_avg_data(cluster, name_node)
             if disk_data is not None:
                 disk_module.plot_graph(disk_data, pp, 'All-nodes average')
 
-        # print average network utilization graph to pdf
+        # print(average network utilization graph to pdf
         if en_avg_net == 'yes' or en_avg_net == 'Yes':
             net_data = net_module.get_avg_data(cluster, name_node)
             if net_data is not None:
@@ -312,13 +312,13 @@ def generate_output(cluster):
                                            "Avg Function", None, perf_list,
                                            "avg", cluster, name_node)
 
-        # print average memory utilization graph to pdf
+        # print(average memory utilization graph to pdf
         if en_avg_memory == 'yes' or en_avg_memory == 'Yes':
             memory_data = memory_module.get_avg_data(cluster, name_node)
             if memory_data is not None:
                 memory_module.plot_graph(memory_data, pp, "All-nodes average")
 
-        # print data graphs for each individual node
+        # print(data graphs for each individual node
         for node in cluster:
             if en_all_cpu == 'yes' or en_all_cpu == 'Yes':
                 if hasattr(node, 'cpu_obj'):
@@ -331,9 +331,15 @@ def generate_output(cluster):
                     disk_module.plot_graph(
                         node.disk_obj.avg_array, pp, str(node_name))
             if en_all_net == 'yes' or en_all_net == 'Yes':
-                node_name = node.net_obj.data_array[1][0]
-                net_module.plot_graph(
-                    node.net_obj.avg_array, pp, str(node_name))
+                if hasattr(node, 'net_obj'):
+                    node_name = node.net_obj.data_array[1][0]
+                    net_module.plot_graph(
+                        node.net_obj.avg_array, pp, str(node_name))
+            if en_all_memory == 'yes' or en_all_memory == 'Yes':
+                if hasattr(node, 'memory_obj'):
+                    node_name = node.memory_obj.data_array[1][0]
+                    memory_module.plot_graph(
+                        node.memory_obj.avg_array, pp, str(node_name))
             if en_all_perf == 'yes' or en_all_perf == 'Yes':
                 if hasattr(node, 'perf_obj'):
                     node_name = node.perf_obj.data_array[1][0]
@@ -354,16 +360,17 @@ def generate_output(cluster):
                                                node.perf_obj.avg_array,
                                                metric_list, "node", None, None)
             if en_all_memory == 'yes' or en_all_memory == 'Yes':
-                node_name = node.memory_obj.data_array[1][0]
-                memory_module.plot_graph(
-                    node.memory_obj.avg_array, pp, str(node_name))
-        print "----Finished pdf", time.ctime(), "----"
+                if hasattr(node, 'perf_obj'):
+                    node_name = node.memory_obj.data_array[1][0]
+                    memory_module.plot_graph(
+                        node.memory_obj.avg_array, pp, str(node_name))
+        print("----Finished pdf", time.ctime(), "----")
         pp.close()
 
     if en_xl == 'yes':
-        print "----Generating Excel", time.ctime(), "----"
+        print("----Generating Excel", time.ctime(), "----")
         wb = xlsxwriter.Workbook(result_path + '/PAT-Result.xlsm')
-        print "----Generating CSV", time.ctime(), "----"
+        print("----Generating CSV", time.ctime(), "----")
         csv_path_cpu = result_path + "/CPU.csv"
         csv_path_disk = result_path + "/DISK.csv"
         csv_path_net = result_path + "/NET.csv"
@@ -393,8 +400,8 @@ def generate_output(cluster):
         if en_memory_csv == 'yes' or en_memory_csv == 'Yes':
             memory_module.csv_writer(cluster, csv_path_memory)
         wb.add_vba_project('./vbaProject.bin')
-        print "----Finished Excel", time.ctime(), "----"
-        print "----Finished CSV", time.ctime(), "----"
+        print("----Finished Excel", time.ctime(), "----")
+        print("----Finished CSV", time.ctime(), "----")
         wb.close()
 
 
@@ -406,9 +413,9 @@ def main():
 
     config = ET.parse(config_file)
     root = config.getroot()
-    print "Started processing on", time.ctime()
+    print("Started processing on", time.ctime())
     cluster = make_cluster(root[3].text)
-    print "Completed processing on", time.ctime()
+    print("Completed processing on", time.ctime())
     generate_output(cluster)
 
 
