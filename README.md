@@ -52,6 +52,8 @@ Figure 5: PAT Post-Processing architecture
 
 ## II. SOFTWARE REQUIREMENTS:
 
+> :information_source: Ansible version of PAT available. Go to [zyluo/PAT](https://github.com/zyluo/PAT) for more info.
+
 - For collecting data
   - Linux Sysstat (version 9.0.4 or newer) 
   - gawk 
