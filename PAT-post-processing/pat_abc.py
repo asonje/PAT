@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 #
 # Copyright (c) 2015, Intel Corporation
 # 
@@ -27,7 +27,10 @@
 
 
 import csv
-from StringIO import StringIO
+try:
+    from StringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
 import fileinput
 import sys
 
@@ -44,13 +47,14 @@ class pat_base(object):
               line = line.replace(searchExp,replaceExp)
            sys.stdout.write(line)
 
-        self.file = open(file_path, 'r')
+        self.file = open(file_path, 'rt')
         self.arr = []
         if 'HostName' in self.file.readline():
             self.file.seek(0)
             self.reader = csv.reader(StringIO(self.file.readline()),
                                      delimiter=' ', skipinitialspace=True)
-            self.arr.append(self.reader.next())
+            #self.arr.append(self.reader.next())
+            self.arr.append(next(self.reader))
 
         self.file.seek(0)
         for self.line in self.file:
@@ -65,5 +69,5 @@ class pat_base(object):
 
     def extract_data(self):
         """extract useful data from the raw data aray and return it"""
-        print "function: extract_data() not implemented"
+        print("function: extract_data() not implemented")
         return
