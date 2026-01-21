@@ -272,12 +272,18 @@ def generate_output(cluster):
         en_memory_csv = root[2].find('csv-memory').text
         result_path = root[3].text
         name_node = root[4].text
+	
+	path = root[3].text
+        if path[-1] == "/":
+            pat_name = path.split("/")[-3]
+        else:
+            pat_name = path.split("/")[-2]
 
     if en_pdf == 'yes':
         print "----Rendering pdf", time.ctime(), "----"
 
         # global pdf file that will contain all charts
-        pp = PdfPages(result_path + '/PAT-Result.pdf')
+        pp = PdfPages(result_path + '/' + pat_name + '.pdf')
 
         # print average cpu utilization graph to pdf
         if en_avg_cpu == 'yes' or en_avg_cpu == 'Yes':
@@ -362,7 +368,7 @@ def generate_output(cluster):
 
     if en_xl == 'yes':
         print "----Generating Excel", time.ctime(), "----"
-        wb = xlsxwriter.Workbook(result_path + '/PAT-Result.xlsm')
+        wb = xlsxwriter.Workbook(result_path + '/' + pat_name + '.xlsm')
         print "----Generating CSV", time.ctime(), "----"
         csv_path_cpu = result_path + "/CPU.csv"
         csv_path_disk = result_path + "/DISK.csv"
