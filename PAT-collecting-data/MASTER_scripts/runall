@@ -94,7 +94,7 @@ do
 	host=$(echo $node | cut -d: -f1)
 	if [ $node == $host ]; then
 		# No remote path provided (missing ":"), local configuration dir ($node) to be copied
-		cp -a $node $OUTDIR/conf 1> /dev/null &
+		cp -a $path $OUTDIR/conf 1> /dev/null &
 	else
 		if [ ! -d "$OUTDIR/conf/$node" ]; then mkdir $OUTDIR/conf/$node; fi
 		scp_from_w $node $path $OUTDIR/conf/$node 1> /dev/null &
